@@ -1,0 +1,14 @@
+<div id="bmsy_content" name="bmsy_content" class="cDiv">
+<div id="booktext">
+<div id=booktext>
+<div id='booktext'>
+<div class="shuneirong">
+<div id="book">
+<div class="div_content" name="content" id="content" >
+<td id="txt_td" class="read" >
+<div id="content">
+<span class='tpc_content'>
+<span class="tpc_content">
+<div id="text" class="typetxt">
+<div id="midbody" class="middle" >
+<p id="content" style="word-wrap:break-word;">

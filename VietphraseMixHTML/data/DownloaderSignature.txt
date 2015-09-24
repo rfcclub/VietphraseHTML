@@ -1,0 +1,4 @@
+﻿KenwenDownloader=www.kenwen.com
+QidianDownloader=qidian.com/BookReader
+Site365zwDownloader=www.365zw.com
+YuanchuangDownloader=www.yuanchuang.com
