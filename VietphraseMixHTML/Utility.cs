@@ -16,16 +16,16 @@ namespace VietphraseMixHTML
             string test = text.ToString();
             test = Regex.Replace(test,
                                  "(" + String.Join("|", replacements.Keys.ToArray()) + ")",
-                                 delegate(Match m) { return replacements[m.Value] +" "; }
+                                 delegate (Match m) { return replacements[m.Value] + " "; }
                 );
             text = new StringBuilder(test);
         }
 
-        public static string MultipleReplace(string text, Dictionary<string,string> replacements)
+        public static string MultipleReplace(string text, Dictionary<string, string> replacements)
         {
             return Regex.Replace(text,
                                  "(" + String.Join("|", replacements.Keys.ToArray()) + ")",
-                                 delegate(Match m) { return replacements[m.Value]; }
+                                 delegate (Match m) { return replacements[m.Value]; }
                 );
         }
 
@@ -35,7 +35,7 @@ namespace VietphraseMixHTML
             {
                 string result;
 
-                
+
                 // Remove HTML Development formatting
                 // Replace line breaks with space
                 // because browsers inserts space
@@ -45,7 +45,7 @@ namespace VietphraseMixHTML
                 result = result.Replace("\n", " ");
                 // Remove step-formatting
                 result = result.Replace("\t", string.Empty);
-                
+
                 // lower case before perform next
                 //result = result.ToLower();
                 // Remove repeating spaces because browsers ignore them
@@ -222,20 +222,7 @@ namespace VietphraseMixHTML
                 }
                 // patch : replace CR with CR + LF
                 result = result.Replace("\r", "\r\n");
-                
-                // patch : change special chinese to unicode
-                /*result = result.Replace('\u3001', ',');
-                result = result.Replace('\uff1b', ';');
-                result = result.Replace('\u3002', '.');
-                result = result.Replace('\uff1a', ':');
-                result = result.Replace('\uff1f', '?');
-                result = result.Replace('\uff0c', ',');
-                result = result.Replace('\uff01', '!');
-                result = result.Replace('\u2026', '.');
-                result = result.Replace('\u201c', '"');
-                result = result.Replace('\u201d', '"');*/
 
-                
                 result = result.Replace('\uff0c', ',');
                 result = result.Replace('\uff01', '!');
                 result = result.Replace('\uff08', '(');
@@ -254,7 +241,7 @@ namespace VietphraseMixHTML
                 result = result.Replace('\u300a', '(');
                 result = result.Replace('\u300b', ')');
 
-                
+
 
                 // That's it.
                 return result;
@@ -266,6 +253,43 @@ namespace VietphraseMixHTML
             }
         }
 
+        internal static string CleanContent(string original, FictionObject fictionObject)
+        {
+            if (fictionObject.HTMLLink.IndexOf("piaotian") >= 0
+                || fictionObject.HTMLLink.IndexOf("69shu") >= 0)
+            {
+                int start = original.IndexOf("&nbsp;&nbsp;&nbsp;&nbsp;");
+                // cannot found text, return as normal strip
+                if(start == -1) return StripHTML(original);
+                int end = original.IndexOf("</div>", start);
+                if(end == -1)
+                {
+                    end = original.LastIndexOf(@"&nbsp;&nbsp;&nbsp;&nbsp;");
+                    end = original.IndexOf("\n",end);
+                }
+                string subContent = original.Substring(start, end-start);
+                return StripHTML(subContent);
+            }
+            else if(fictionObject.HTMLLink.IndexOf("quledu") >= 0)
+            {
+                string startSign = "<div id=\"htmlContent\" class=\"contentbox\"";
+                int start = original.IndexOf(startSign);
+                if (start != -1)
+                {
+                    int end = original.IndexOf("</div>", start);
+                    string subContent = original.Substring(start, end - start);
+                    return StripHTML(subContent.Substring(startSign.Length));
+                } 
+                else
+                {
+                    return StripHTML(original);
+                }
+            }
+            else
+            {
+                return StripHTML(original);
+            }
+        }
 
         public static string ReplaceEx(string original,
                     string pattern, string replacement)

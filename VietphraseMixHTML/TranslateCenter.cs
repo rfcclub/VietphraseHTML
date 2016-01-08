@@ -46,7 +46,7 @@ namespace VietphraseMixHTML
 
         public bool Finish()
         {
-            return !start && processCount == totalCount;
+            return !start || processCount == totalCount;
         }
 
         public void Start()
@@ -102,6 +102,7 @@ namespace VietphraseMixHTML
                     SaveTranslateFiles();
                 }
             }
+            reportThread.ReportProgress(translateMap.Keys.Count);
         }
 
         public void SaveTranslateFiles()
@@ -161,12 +162,15 @@ namespace VietphraseMixHTML
             while (processCount < originalStrings.Count && processCount < totalCount)
             {
                 int count = GetNextCount();
-                string original = Utility.StripHTML(originalStrings[count]);
+                string original = originalStrings[count];
 
                 string result = original;
 
                 if (!original.StartsWith("VPBOBBIE"))
+                {
+                    original = Utility.CleanContent(original, fictionObject);
                     result = Translate(original, reportThread);
+                }
                 else
                     result = original.Substring(8);
 

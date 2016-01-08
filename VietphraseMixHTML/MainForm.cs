@@ -374,25 +374,28 @@ namespace VietphraseMixHTML
                 //if (!chkNativeWebClient.Checked)
                 //{
                 pageNotFound = false;
-                // use downloader to download truyen. :D :D :D
-                htmlContent = downloader.Download(url);
-                //string content = 
-                string utf8Content = null;
-
-                if (isUTF8Already) // if we use bot for getting truyen so it doesnt need to convert again
-                    utf8Content = htmlContent;
-                else   // convert truyen to UTF-8 
-                    utf8Content = GetUTF8Content(url, htmlContent, chineseEncoding, out pageNotFound);
-
-                if (!pageNotFound) // gotten page content 
+                if (!String.IsNullOrEmpty(url.Trim()))
                 {
-                    if (!_processedLinkList.Contains(url))
+                    // use downloader to download truyen. :D :D :D
+                    htmlContent = downloader.Download(url);
+                    //string content = 
+                    string utf8Content = null;
+
+                    if (isUTF8Already) // if we use bot for getting truyen so it doesnt need to convert again
+                        utf8Content = htmlContent;
+                    else   // convert truyen to UTF-8 
+                        utf8Content = GetUTF8Content(url, htmlContent, chineseEncoding, out pageNotFound);
+
+                    if (!pageNotFound) // gotten page content 
                     {
-                        _processedLinkList.Add(url);
+                        if (!_processedLinkList.Contains(url))
+                        {
+                            _processedLinkList.Add(url);
+                        }
                     }
+                    _processingQueue.Enqueue(utf8Content);
+                    waitProcess.Set(); // inform for waiting translate thread
                 }
-                _processingQueue.Enqueue(utf8Content);
-                waitProcess.Set(); // inform for waiting translate thread
                 currentCount++;
                 ((WorkingThread)sender).ReportProgress(currentCount);
                 //}

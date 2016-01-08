@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.label1 = new System.Windows.Forms.Label();
             this.grpFictionInformation = new System.Windows.Forms.GroupBox();
             this.label14 = new System.Windows.Forms.Label();
@@ -87,12 +87,20 @@
             this.btnDelete = new System.Windows.Forms.Button();
             this.btnQuit = new System.Windows.Forms.Button();
             this.dgvFictions = new System.Windows.Forms.DataGridView();
+            this.nameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ChapterCount = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.NewChapterCount = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.fictionObjectBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.cấuHìnhToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadLaiThuMucToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ChangeNameWebsiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tienIchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.danhSachLinkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dichTungFileDonLeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.capNhatEncodingToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.gopNhieuFileVaoMotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.taoFileZipToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnEdit = new System.Windows.Forms.Button();
             this.btnUpdateAll = new System.Windows.Forms.Button();
             this.chkRunBackground = new System.Windows.Forms.CheckBox();
@@ -100,20 +108,12 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.translateLabel = new System.Windows.Forms.Label();
             this.browser = new System.Windows.Forms.WebBrowser();
-            this.nameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.fictionObjectBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.tienIchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.danhSachLinkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.dichTungFileDonLeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.capNhatEncodingToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.gopNhieuFileVaoMotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.taoFileZipToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.grpFictionInformation.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.grpStatus.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFictions)).BeginInit();
-            this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fictionObjectBindingSource)).BeginInit();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -127,6 +127,7 @@
             // 
             // grpFictionInformation
             // 
+            this.grpFictionInformation.Controls.Add(this.txtUpdateSign);
             this.grpFictionInformation.Controls.Add(this.label14);
             this.grpFictionInformation.Controls.Add(this.label13);
             this.grpFictionInformation.Controls.Add(this.chkSort);
@@ -142,7 +143,6 @@
             this.grpFictionInformation.Controls.Add(this.rdoStringPrefix);
             this.grpFictionInformation.Controls.Add(this.btnCancel);
             this.grpFictionInformation.Controls.Add(this.rdoIncremental);
-            this.grpFictionInformation.Controls.Add(this.txtUpdateSign);
             this.grpFictionInformation.Controls.Add(this.groupBox2);
             this.grpFictionInformation.Controls.Add(this.label3);
             this.grpFictionInformation.Controls.Add(this.txtLocation);
@@ -187,6 +187,7 @@
             // 
             this.txtPreviousStepCount.Location = new System.Drawing.Point(364, 167);
             this.txtPreviousStepCount.Name = "txtPreviousStepCount";
+            this.txtPreviousStepCount.ReadOnly = true;
             this.txtPreviousStepCount.Size = new System.Drawing.Size(51, 20);
             this.txtPreviousStepCount.TabIndex = 19;
             // 
@@ -675,50 +676,57 @@
             // 
             this.dgvFictions.AllowUserToAddRows = false;
             this.dgvFictions.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
-            this.dgvFictions.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
+            this.dgvFictions.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvFictions.AutoGenerateColumns = false;
             this.dgvFictions.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
             this.dgvFictions.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvFictions.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvFictions.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvFictions.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvFictions.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.nameDataGridViewTextBoxColumn,
             this.ChapterCount,
             this.NewChapterCount});
             this.dgvFictions.DataSource = this.fictionObjectBindingSource;
-            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvFictions.DefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvFictions.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgvFictions.Location = new System.Drawing.Point(12, 55);
             this.dgvFictions.Name = "dgvFictions";
             this.dgvFictions.ReadOnly = true;
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvFictions.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvFictions.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvFictions.RowHeadersVisible = false;
             this.dgvFictions.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvFictions.Size = new System.Drawing.Size(302, 405);
             this.dgvFictions.TabIndex = 7;
             this.dgvFictions.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.dgvFictions_DataError);
             this.dgvFictions.SelectionChanged += new System.EventHandler(this.dataGridView1_SelectionChanged);
+            // 
+            // nameDataGridViewTextBoxColumn
+            // 
+            this.nameDataGridViewTextBoxColumn.DataPropertyName = "Name";
+            this.nameDataGridViewTextBoxColumn.HeaderText = "Tên";
+            this.nameDataGridViewTextBoxColumn.Name = "nameDataGridViewTextBoxColumn";
+            this.nameDataGridViewTextBoxColumn.ReadOnly = true;
             // 
             // ChapterCount
             // 
@@ -733,6 +741,10 @@
             this.NewChapterCount.HeaderText = "Chương mới";
             this.NewChapterCount.Name = "NewChapterCount";
             this.NewChapterCount.ReadOnly = true;
+            // 
+            // fictionObjectBindingSource
+            // 
+            this.fictionObjectBindingSource.DataSource = typeof(VietphraseMixHTML.FictionObject);
             // 
             // menuStrip1
             // 
@@ -768,6 +780,53 @@
             this.ChangeNameWebsiteToolStripMenuItem.Size = new System.Drawing.Size(100, 20);
             this.ChangeNameWebsiteToolStripMenuItem.Text = "Đổi tên website";
             this.ChangeNameWebsiteToolStripMenuItem.Click += new System.EventHandler(this.ChangeNameWebsiteToolStripMenuItem_Click);
+            // 
+            // tienIchToolStripMenuItem
+            // 
+            this.tienIchToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.danhSachLinkToolStripMenuItem,
+            this.dichTungFileDonLeToolStripMenuItem,
+            this.capNhatEncodingToolStripMenuItem1,
+            this.gopNhieuFileVaoMotToolStripMenuItem,
+            this.taoFileZipToolStripMenuItem});
+            this.tienIchToolStripMenuItem.Name = "tienIchToolStripMenuItem";
+            this.tienIchToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.tienIchToolStripMenuItem.Text = "Tiện Ích";
+            // 
+            // danhSachLinkToolStripMenuItem
+            // 
+            this.danhSachLinkToolStripMenuItem.Name = "danhSachLinkToolStripMenuItem";
+            this.danhSachLinkToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
+            this.danhSachLinkToolStripMenuItem.Text = "Danh sách Link";
+            this.danhSachLinkToolStripMenuItem.Click += new System.EventHandler(this.LinkListToolStripMenuItem_Click);
+            // 
+            // dichTungFileDonLeToolStripMenuItem
+            // 
+            this.dichTungFileDonLeToolStripMenuItem.Name = "dichTungFileDonLeToolStripMenuItem";
+            this.dichTungFileDonLeToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
+            this.dichTungFileDonLeToolStripMenuItem.Text = "Dịch từng file đơn lẻ";
+            this.dichTungFileDonLeToolStripMenuItem.Click += new System.EventHandler(this.singleFleTranslateToolStripMenuItem_Click);
+            // 
+            // capNhatEncodingToolStripMenuItem1
+            // 
+            this.capNhatEncodingToolStripMenuItem1.Name = "capNhatEncodingToolStripMenuItem1";
+            this.capNhatEncodingToolStripMenuItem1.Size = new System.Drawing.Size(207, 22);
+            this.capNhatEncodingToolStripMenuItem1.Text = "Cập nhật Encoding";
+            this.capNhatEncodingToolStripMenuItem1.Click += new System.EventHandler(this.capNhatEncodingToolStripMenuItem_Click);
+            // 
+            // gopNhieuFileVaoMotToolStripMenuItem
+            // 
+            this.gopNhieuFileVaoMotToolStripMenuItem.Name = "gopNhieuFileVaoMotToolStripMenuItem";
+            this.gopNhieuFileVaoMotToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
+            this.gopNhieuFileVaoMotToolStripMenuItem.Text = "Gộp nhiều file thành một";
+            this.gopNhieuFileVaoMotToolStripMenuItem.Click += new System.EventHandler(this.mergeFileStripMenuItem_Click);
+            // 
+            // taoFileZipToolStripMenuItem
+            // 
+            this.taoFileZipToolStripMenuItem.Name = "taoFileZipToolStripMenuItem";
+            this.taoFileZipToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
+            this.taoFileZipToolStripMenuItem.Text = "Tạo file zip";
+            this.taoFileZipToolStripMenuItem.Click += new System.EventHandler(this.taoFileZipToolStripMenuItem_Click);
             // 
             // btnEdit
             // 
@@ -831,64 +890,6 @@
             this.browser.Size = new System.Drawing.Size(32, 32);
             this.browser.TabIndex = 14;
             // 
-            // nameDataGridViewTextBoxColumn
-            // 
-            this.nameDataGridViewTextBoxColumn.DataPropertyName = "Name";
-            this.nameDataGridViewTextBoxColumn.HeaderText = "Tên";
-            this.nameDataGridViewTextBoxColumn.Name = "nameDataGridViewTextBoxColumn";
-            this.nameDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // fictionObjectBindingSource
-            // 
-            this.fictionObjectBindingSource.DataSource = typeof(VietphraseMixHTML.FictionObject);
-            // 
-            // tienIchToolStripMenuItem
-            // 
-            this.tienIchToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.danhSachLinkToolStripMenuItem,
-            this.dichTungFileDonLeToolStripMenuItem,
-            this.capNhatEncodingToolStripMenuItem1,
-            this.gopNhieuFileVaoMotToolStripMenuItem,
-            this.taoFileZipToolStripMenuItem});
-            this.tienIchToolStripMenuItem.Name = "tienIchToolStripMenuItem";
-            this.tienIchToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
-            this.tienIchToolStripMenuItem.Text = "Tiện Ích";
-            // 
-            // danhSachLinkToolStripMenuItem
-            // 
-            this.danhSachLinkToolStripMenuItem.Name = "danhSachLinkToolStripMenuItem";
-            this.danhSachLinkToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.danhSachLinkToolStripMenuItem.Text = "Danh sách Link";
-            this.danhSachLinkToolStripMenuItem.Click += new System.EventHandler(this.LinkListToolStripMenuItem_Click);
-            // 
-            // dichTungFileDonLeToolStripMenuItem
-            // 
-            this.dichTungFileDonLeToolStripMenuItem.Name = "dichTungFileDonLeToolStripMenuItem";
-            this.dichTungFileDonLeToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.dichTungFileDonLeToolStripMenuItem.Text = "Dịch từng file đơn lẻ";
-            this.dichTungFileDonLeToolStripMenuItem.Click += new System.EventHandler(this.singleFleTranslateToolStripMenuItem_Click);
-            // 
-            // capNhatEncodingToolStripMenuItem1
-            // 
-            this.capNhatEncodingToolStripMenuItem1.Name = "capNhatEncodingToolStripMenuItem1";
-            this.capNhatEncodingToolStripMenuItem1.Size = new System.Drawing.Size(207, 22);
-            this.capNhatEncodingToolStripMenuItem1.Text = "Cập nhật Encoding";
-            this.capNhatEncodingToolStripMenuItem1.Click += new System.EventHandler(this.capNhatEncodingToolStripMenuItem_Click);
-            // 
-            // gopNhieuFileVaoMotToolStripMenuItem
-            // 
-            this.gopNhieuFileVaoMotToolStripMenuItem.Name = "gopNhieuFileVaoMotToolStripMenuItem";
-            this.gopNhieuFileVaoMotToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.gopNhieuFileVaoMotToolStripMenuItem.Text = "Gộp nhiều file thành một";
-            this.gopNhieuFileVaoMotToolStripMenuItem.Click += new System.EventHandler(this.mergeFileStripMenuItem_Click);
-            // 
-            // taoFileZipToolStripMenuItem
-            // 
-            this.taoFileZipToolStripMenuItem.Name = "taoFileZipToolStripMenuItem";
-            this.taoFileZipToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.taoFileZipToolStripMenuItem.Text = "Tạo file zip";
-            this.taoFileZipToolStripMenuItem.Click += new System.EventHandler(this.taoFileZipToolStripMenuItem_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -921,9 +922,9 @@
             this.grpStatus.ResumeLayout(false);
             this.grpStatus.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFictions)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fictionObjectBindingSource)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.fictionObjectBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
