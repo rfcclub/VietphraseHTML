@@ -3,3 +3,11 @@
 ################################################################################
 
 /VietphraseMixHTML/bin/Debug/ar/InfoBox.resources.dll
+*.dll
+/VietphraseMixHTML/bin/Debug
+/VietphraseMixHTML/obj/Debug
+/VietphraseMixHTML/obj/Debug/VietphraseMixHTML.pdb
+/VietphraseMixHTML/obj/Debug
+/VietphraseMixHTML/bin/Debug
+/VietphraseMixHTML/obj/Debug
+/VietphraseMixHTML/bin/Debug

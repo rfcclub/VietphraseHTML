@@ -294,21 +294,14 @@ namespace VietphraseMixHTML
             }
             else if(fictionObject.HTMLLink.IndexOf("uukanshu") > 0)
             {
-                string startSign = "<div id=\"contentbox\"";
-                int start = original.IndexOf(startSign);
-                if(start != - 1)
+                HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
+                htmlDocument.LoadHtml(original);
+                var node = htmlDocument.DocumentNode.SelectSingleNode("//div[@id=\"contentbox\"]");
+                if(node != null)
                 {
-                    int end = original.IndexOf("</div>", start);
-                    if (end != -1)
-                    {
-                        string subContent = original.Substring(start, end - start);
-                        return StripHTML(subContent.Substring(startSign.Length));
-                    }
-                    else
-                    {
-                        return StripHTML(original);
-                    }
-                } else
+                    return StripHTML(node.InnerText);
+                }
+                else
                 {
                     return StripHTML(original);
                 }
