@@ -2,6 +2,7 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
+<<<<<<< HEAD
 /VietphraseMixHTML/bin/Debug/ar/InfoBox.resources.dll
 *.dll
 /VietphraseMixHTML/bin/Debug
@@ -11,3 +12,6 @@
 /VietphraseMixHTML/bin/Debug
 /VietphraseMixHTML/obj/Debug
 /VietphraseMixHTML/bin/Debug
+=======
+/VietphraseMixHTML/obj/Debug
+>>>>>>> 7273cf4155fa10c08c4d27904962c90bb983103d
