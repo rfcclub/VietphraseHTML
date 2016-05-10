@@ -273,14 +273,42 @@ namespace VietphraseMixHTML
             else if(fictionObject.HTMLLink.IndexOf("quledu") >= 0)
             {
                 string startSign = "<div id=\"htmlContent\" class=\"contentbox\"";
-                int start = original.IndexOf(startSign);
+                int start = original.IndexOf(startSign);                
                 if (start != -1)
                 {
                     int end = original.IndexOf("</div>", start);
-                    string subContent = original.Substring(start, end - start);
-                    return StripHTML(subContent.Substring(startSign.Length));
+                    if (end != -1)
+                    {
+                        string subContent = original.Substring(start, end - start);
+                        return StripHTML(subContent.Substring(startSign.Length));
+                    }
+                    else
+                    {
+                        return StripHTML(original);
+                    }
                 } 
                 else
+                {
+                    return StripHTML(original);
+                }
+            }
+            else if(fictionObject.HTMLLink.IndexOf("uukanshu") > 0)
+            {
+                string startSign = "<div id=\"contentbox\"";
+                int start = original.IndexOf(startSign);
+                if(start != - 1)
+                {
+                    int end = original.IndexOf("</div>", start);
+                    if (end != -1)
+                    {
+                        string subContent = original.Substring(start, end - start);
+                        return StripHTML(subContent.Substring(startSign.Length));
+                    }
+                    else
+                    {
+                        return StripHTML(original);
+                    }
+                } else
                 {
                     return StripHTML(original);
                 }
