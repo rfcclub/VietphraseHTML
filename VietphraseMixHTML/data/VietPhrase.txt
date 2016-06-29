@@ -95128,7 +95128,6 @@
 脚=chân
 脱=cởi
 脸=mặt
-至=tới
 舔=liếm
 艘=chiếc
 花=xài/tìm
@@ -95244,3 +95243,10 @@
 饶=tha cho
 骂=mắng/chửi
 鱼=cá
+来=tới
+莱=tới
+來=tới
+倈=tới
+徠=tới
+淶=tới
+萊=tới

@@ -299,7 +299,9 @@ namespace VietphraseMixHTML
                 var node = htmlDocument.DocumentNode.SelectSingleNode("//div[@id=\"contentbox\"]");
                 if(node != null)
                 {
-                    return StripHTML(node.InnerText);
+                    string text = node.InnerText;
+                    text = text.Replace("<br/>", "\r\n");
+                    return StripHTML(text);
                 }
                 else
                 {
