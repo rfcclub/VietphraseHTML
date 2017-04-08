@@ -85,9 +85,11 @@ namespace VietphraseMixHTML
                 form.ShowDialog();
 
                 _currentFictionObject.NewFilesList = form.UrlList;
+                _currentFictionObject.NewChapterNamesList = form.ChapterNameList;
                 _currentFictionObject.UpdateContentList();
                 _currentFictionObject.UpdateSignString = form.UpdateSignString;
                 _currentFictionObject.UpdateSign = form.UpdateSign;
+                _currentFictionObject.SortBeforeDownload = form.SortBeforeDownload;
                 _pageEncoding = form.PageEncoding;
                 _stepCount = 1;
                 _currentFictionObject.Save();
@@ -262,8 +264,10 @@ namespace VietphraseMixHTML
                 translateLabel.Text = (string)e.UserState;
                 return;
             }
-
-            progressTranslateBar.Value = e.ProgressPercentage;
+            if(e.ProgressPercentage <=progressTranslateBar.Maximum)
+                progressTranslateBar.Value = e.ProgressPercentage;
+            else
+                progressTranslateBar.Value = progressTranslateBar.Maximum;
             lblTranslateFile.Text = e.ProgressPercentage.ToString();
             dgvFictions.Refresh(); 
         }
@@ -364,7 +368,15 @@ namespace VietphraseMixHTML
             downloader.Browser = browser;
             downloader.Client = webClient;
                 
-
+            for(int i=0;i<_currentFictionObject.NewChapterNamesList.Count; i++)
+            {
+                string titleContent = _currentFictionObject.NewChapterNamesList[i];
+                if(!isUTF8Already)
+                {
+                    titleContent = GetUTF8Content(_currentFictionObject.HTMLLink, titleContent, chineseEncoding, out pageNotFound);
+                }
+                _currentFictionObject.NewChapterNamesList[i] = titleContent;
+            }
             int currentCount = 0;
             foreach (var url in _currentFictionObject.NewFilesList)
             {
@@ -393,6 +405,9 @@ namespace VietphraseMixHTML
                             _processedLinkList.Add(url);
                         }
                     }
+
+                    // translate chapter name
+                    
                     _processingQueue.Enqueue(utf8Content);
                     waitProcess.Set(); // inform for waiting translate thread
                 }
@@ -867,6 +882,7 @@ namespace VietphraseMixHTML
             fictionObject.Name = txtName.Text.Trim();
             fictionObject.FilesList = new List<string>();
             fictionObject.NewFilesList = new List<string>();
+            fictionObject.Author = txtAuthor.Text.Trim();
 
             _fictionObjectManager.Add(fictionObject);
             dgvFictions.CurrentCell = dgvFictions[0, _fictionObjectManager.ProjectList.Count - 1];
@@ -956,7 +972,7 @@ namespace VietphraseMixHTML
             if(_currentFictionObject.Location.StartsWith(@"\")) _currentFictionObject.Location = _currentFictionObject.Location.Substring(1);
             txtLocation.Text = Setting.Default.Workspace + @"\" + _currentFictionObject.Location;
             txtUpdateSign.Text = _currentFictionObject.UpdateSignString;
-
+            txtAuthor.Text = _currentFictionObject.Author;
             chkGoogleTranslate.Checked = _currentFictionObject.UseGoogleMobile;
             chkUseVPBot.Checked = _currentFictionObject.UseVpBotbie;
             if (_currentFictionObject.UpdateSign == UpdateSignType.Incremental)
@@ -1008,7 +1024,7 @@ namespace VietphraseMixHTML
             {
                 _currentFictionObject.UpdateSign = UpdateSignType.None;
             }
-
+            _currentFictionObject.Author = txtAuthor.Text;
             _currentFictionObject.UseGoogleMobile = chkGoogleTranslate.Checked;
             _currentFictionObject.UseVpBotbie = chkUseVPBot.Checked;
             int prevCount = 0;
@@ -1210,6 +1226,10 @@ namespace VietphraseMixHTML
                     File.Delete(nextFile);
                     nextFile = fictionPath + "\\" + string.Format("{0:000}", count++) + ".txt";
                 }
+                if(File.Exists(fictionPath + "\\mykindlebook.opf")) File.Delete(fictionPath + "\\mykindlebook.opf");
+                if (File.Exists(fictionPath + "\\mykindlebook.html")) File.Delete(fictionPath + "\\mykindlebook.html");
+                if (File.Exists(fictionPath + "\\toc.ncx")) File.Delete(fictionPath + "\\toc.ncx");
+                if (File.Exists(fictionPath + "\\toc.html")) File.Delete(fictionPath + "\\toc.html");
                 _currentFictionObject.ResetFlag = false;
             }            
 
@@ -1525,6 +1545,12 @@ namespace VietphraseMixHTML
 
             }
             InfoBox.InformationBox.Show("Hoan tat !", new AutoCloseParameters(2));
+        }
+
+        private void createMoreFileEpubToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TranslateCenter center = new TranslateCenter(_currentFictionObject, _currentFictionObject.ChapterCount, 2000, null);
+            center.SaveMultipleEpub();
         }
     }
 }

@@ -14,6 +14,8 @@ namespace VietphraseMixHTML
     [Serializable]
     public class FictionObject
     {
+        public string Author { get; set; }
+
         public bool ResetFlag {get; set;}
 
         public string UpdateSignString { get; set;}
@@ -26,13 +28,19 @@ namespace VietphraseMixHTML
         public string DownloaderName { get; set; }
         public List<string> FilesList { get; set; }
         public List<string> NewFilesList { get; set; }
-        
+        public List<string> ChapterNamesList { get; set; }
+        public List<string> NewChapterNamesList { get; set; }
+
         public void UpdateContentList()
         {
             if (NewFilesList.Count > 0)
             {
                 IList<string> list = new List<string>();
-                foreach (string s in NewFilesList) { list.Add(s); }
+                for (int i=0;i < NewFilesList.Count; i++)
+                {
+                    list.Add(NewFilesList[i]);
+
+                }
                 if(ContentList == null) ContentList = new Dictionary<string, IList<string>>();
                 ContentList[DateTime.Now.ToString("ddMMyyyyHHmmss")] = list;
             }
@@ -79,6 +87,8 @@ namespace VietphraseMixHTML
             UpdateSign = UpdateSignType.None;
             ContentList = new Dictionary<string, IList<string>>();
             ContentEncoding = Encoding.GetEncoding("GB2312");
+            ChapterNamesList = new List<string>();
+            NewChapterNamesList = new List<string>();
         }
 
         public override bool Equals(object obj)
@@ -180,6 +190,7 @@ namespace VietphraseMixHTML
         private void DoUpdate()
         {
             NewFilesList.Clear();
+            NewChapterNamesList.Clear();
             List<string> lstLinks = new List<string>();
             HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
             WebRequest request = WebRequest.Create(HTMLLink);
@@ -221,6 +232,7 @@ namespace VietphraseMixHTML
                 if (!FilesList.Contains(buildNewLink))
                 {
                     NewFilesList.Add(buildNewLink);
+                    NewChapterNamesList.Add(GetUTF8Content(HTMLLink, link.InnerHtml, ContentEncoding));
                 }
             }
 
@@ -231,6 +243,27 @@ namespace VietphraseMixHTML
             PreviousStepCount = GetPreviousStepCount();
 
             
+        }
+
+        private string GetUTF8Content(string url, string htmlContent, Encoding chineseEncoding)
+        {
+            string utf8Content = null;
+            if (!string.IsNullOrEmpty(htmlContent))
+            {
+                if (Utility.IsUtf8Site(url))
+                {
+                    utf8Content = htmlContent;
+                }
+                else
+                {
+                    utf8Content = chineseEncoding.GetString(chineseEncoding.GetBytes(htmlContent));
+                }
+            }
+            else
+            {
+                utf8Content = "Page not found!";
+            }
+            return utf8Content;
         }
 
         private List<string> DoSort(List<string> lstLinks)

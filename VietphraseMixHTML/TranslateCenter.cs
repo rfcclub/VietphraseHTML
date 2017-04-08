@@ -8,15 +8,20 @@ using Setting = VietphraseMixHTML.Properties.Settings;
 using VBStrings = Microsoft.VisualBasic.Strings;
 using HtmlAgilityPack;
 using Ionic.Zip;
+using System.Xml;
+using System.Drawing;
+using System.Diagnostics;
 
 namespace VietphraseMixHTML
 {
     public class TranslateCenter
     {
+        public const int BOOK_CHAPTERS = 1000;
         public const int MAX_THREADS = 5;
         IList<string> originalStrings;
         IList<string> links;
-        IDictionary<int, string> translateMap;        
+        IDictionary<int, string> translateMap;
+        IDictionary<int, string> chapterTranslateMap;
         int processCount = 0;
         int startPoint = 0;
         int totalCount;
@@ -41,6 +46,7 @@ namespace VietphraseMixHTML
             startPoint = 0;
             originalStrings = new List<string>();
             translateMap = new Dictionary<int, string>();
+            chapterTranslateMap = new Dictionary<int, string>();
             workingThreads = new List<WorkingThread>();
         }
 
@@ -52,7 +58,46 @@ namespace VietphraseMixHTML
         public void Start()
         {
             start = true;
+            TranslateChapterNames();
+
         }
+
+        private void TranslateChapterNames()
+        {
+            WorkingThread thread = new WorkingThread();
+            thread.DoWork += ThreadTranslateName;
+            thread.WorkCompleted += Thread_WorkCompleted1;
+            workingThreads.Add(thread);
+            thread.RunWorkAsync();
+        }
+
+        private void Thread_WorkCompleted1(object sender, WorkingEventArg e)
+        {
+            workingThreads.Remove((WorkingThread)sender);
+        }
+
+        private void ThreadTranslateName(object sender, WorkingEventArg e)
+        {
+            for (int i = 0; i < fictionObject.NewChapterNamesList.Count; i++)
+            {
+                string translateContent = fictionObject.NewChapterNamesList[i];
+                GlobalCache.VietPhrase.AsEnumerable().ToList().ForEach(t =>
+                    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+                GlobalCache.Names.AsEnumerable().ToList().ForEach(t =>
+                    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+                GlobalCache.ChinesePhienAmWords.AsEnumerable().ToList().ForEach(t =>
+                    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+                GlobalCache.ThanhNgu.AsEnumerable().ToList().ForEach(t =>
+                    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+                fictionObject.ChapterNamesList.Add(translateContent);
+                chapterTranslateMap[i] = translateContent;
+                fictionObject.NewChapterNamesList[i] = translateContent;
+            }
+            if (fictionObject.ChapterNamesList == null) fictionObject.ChapterNamesList = new List<string>();
+            fictionObject.ChapterNamesList.AddRange(fictionObject.NewChapterNamesList);
+            fictionObject.NewChapterNamesList.Clear();
+        }
+
         public void Stop()
         {
             start = false;
@@ -100,9 +145,348 @@ namespace VietphraseMixHTML
                 lock(lockObject)
                 {
                     SaveTranslateFiles();
+                    SaveEpub();
+                    ConvertToKindle();
                 }
             }
             reportThread.ReportProgress(translateMap.Keys.Count);
+        }
+        private Image DrawCover(String text, String author, Font font, Font authorFont, Color textColor, Color backColor)
+        {
+            //first, create a dummy bitmap just to get a graphics object
+            Image img = new Bitmap(1, 1);
+            Graphics drawing = Graphics.FromImage(img);
+
+            //measure the string to see how big the image needs to be
+            SizeF textSize = drawing.MeasureString(text, font);
+
+            //free up the dummy image and old graphics object
+            img.Dispose();
+            drawing.Dispose();
+
+            //create a new image of the right size
+            //img = new Bitmap((int)textSize.Width, (int)textSize.Height);
+            img = new Bitmap(600, 800);
+            drawing = Graphics.FromImage(img);
+
+            //paint the background
+            drawing.Clear(backColor);
+
+            //create a brush for the text
+            Brush textBrush = new SolidBrush(textColor);
+
+            drawing.DrawString(text, font, textBrush, 50, 50);
+            drawing.Save();
+            drawing.DrawString(author, authorFont, textBrush, 50, 120);
+            textBrush.Dispose();
+            drawing.Dispose();
+
+            return img;
+
+        }
+
+        private void ConvertToKindle()
+        {
+            reportThread.ReportProgress(0, "Start convert to Kindle MOBI");
+            string dir = Setting.Default.Workspace + "\\" + fictionObject.Location;
+            Image cover = DrawCover(fictionObject.Name, fictionObject.Author, 
+                new Font("Arial", 30, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel),
+                new Font("Arial", 18, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel),
+                Color.Black, Color.White);
+            cover.Save(dir + "\\mycover.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+            cover.Dispose();
+
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.CreateNoWindow = true;
+            startInfo.UseShellExecute = true;
+            startInfo.WindowStyle = ProcessWindowStyle.Normal;
+            startInfo.FileName = "C:\\kindlegen\\kindlegen.exe";
+            string compressOption = "-c1";
+            if(fictionObject.ChapterCount >= BOOK_CHAPTERS)
+            {
+                compressOption = "-c0";
+            }
+            startInfo.Arguments = dir + "\\mykindlebook.opf " + compressOption + " -o " + fictionObject.Name + ".mobi";
+
+            // Start the process with the info we specified.
+            // Call WaitForExit and then the using statement will close.
+            using (Process exeProcess = Process.Start(startInfo))
+            {
+                exeProcess.WaitForExit();
+            }
+            reportThread.ReportProgress(0, "Convert to Kindle MOBI successfully");
+        }
+
+        public void SaveMultipleEpub()
+        {
+            
+            if(fictionObject.ChapterCount <= BOOK_CHAPTERS)
+            {
+                // SaveEpub(); // do nothing for now
+                return;
+            }
+            // copy template file
+            string dir = Setting.Default.Workspace + "\\" + fictionObject.Location;
+            PopulateExistFile(dir);
+            ConvertAllToKindle(dir);
+        }
+
+        private void ConvertAllToKindle(string dir)
+        {
+            int steps = fictionObject.ChapterCount;
+            int bookCount = steps / BOOK_CHAPTERS;
+            if (steps % (bookCount * BOOK_CHAPTERS) > 0) bookCount = bookCount + 1;
+            for (int i = 1; i <= bookCount; i++)
+            {
+                string bookDir = dir + "\\Book_" + i.ToString();
+                if (!Directory.Exists(bookDir)) Directory.CreateDirectory(bookDir);
+                String bookPath = bookDir + "\\" + this.fictionObject.Name + "_" + i.ToString() + ".mobi";
+                bool hasBookExisting = File.Exists(bookPath);
+                if (hasBookExisting)
+                {
+                    File.Delete(bookPath);
+                }
+
+                Image cover = DrawCover(fictionObject.Name + " - Quyển " + i.ToString(), fictionObject.Author,
+                new Font("Arial", 30, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel),
+                new Font("Arial", 18, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel),
+                Color.Black, Color.White);
+                cover.Save(bookDir + "\\mycover.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+                cover.Dispose();
+
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                startInfo.CreateNoWindow = true;
+                startInfo.UseShellExecute = true;
+                startInfo.WindowStyle = ProcessWindowStyle.Normal;
+                startInfo.FileName = "C:\\kindlegen\\kindlegen.exe";
+                string compressOption = "-c1";
+                if (fictionObject.ChapterCount >= BOOK_CHAPTERS)
+                {
+                    compressOption = "-c0";
+                }
+                startInfo.Arguments = bookDir + "\\mykindlebook.opf " + compressOption + " -o " + this.fictionObject.Name + "_" + i.ToString() + ".mobi";
+
+                // Start the process with the info we specified.
+                // Call WaitForExit and then the using statement will close.
+                using (Process exeProcess = Process.Start(startInfo))
+                {
+                    exeProcess.WaitForExit();
+                }
+            }
+
+            
+            
+        
+    }
+
+        private void PopulateExistFile(string dir)
+        {
+            HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
+            htmlDocument.Load(dir + "\\mykindlebook.html");
+            HtmlAgilityPack.HtmlDocument tocDocument = new HtmlAgilityPack.HtmlDocument();
+            tocDocument.Load(dir + "\\toc.html");
+            XmlDocument opfXml = new XmlDocument();
+            opfXml.Load(dir + "\\mykindlebook.opf");
+
+            XmlDocument tocXml = new XmlDocument();
+            tocXml.Load(dir + "\\toc.ncx");
+            var ns = new XmlNamespaceManager(tocXml.NameTable);
+            ns.AddNamespace("ns", "http://www.daisy.org/z3986/2005/ncx/");
+            XmlNode tocXmlNode = tocXml.SelectSingleNode("/ns:ncx/ns:navMap", ns);
+
+            HtmlNode bodyNode = htmlDocument.DocumentNode.SelectSingleNode("/html/body");
+            HtmlNode tocNode = tocDocument.DocumentNode.SelectSingleNode("/html/body/div");
+
+            IDictionary<int, HtmlNode> chapters = new Dictionary<int, HtmlNode>();
+            IDictionary<int, HtmlNode> contents = new Dictionary<int, HtmlNode>();
+          
+            
+            int steps = fictionObject.ChapterCount;
+            int bookCount = steps / BOOK_CHAPTERS;
+            if (steps % (bookCount * BOOK_CHAPTERS) > 0) bookCount = bookCount + 1;
+            for (int i = 1;i <=bookCount; i ++)
+            {
+                string bookDir = dir + "\\Book_" + i.ToString();
+                if(!Directory.Exists(bookDir)) Directory.CreateDirectory(bookDir);
+                String bookPath = bookDir + "\\" + this.fictionObject.Name + "_" + i.ToString() + ".mobi";
+                bool hasBookExisting = File.Exists(bookPath);
+                if (!hasBookExisting)
+                {
+                    File.Copy(GlobalCache.TemplatePath + "mykindlebook.html", bookDir + "\\mykindlebook.html", true);
+                    File.Copy(GlobalCache.TemplatePath + "mykindlebook.opf", bookDir + "\\mykindlebook.opf", true);
+                    File.Copy(GlobalCache.TemplatePath + "style.css", bookDir + "\\style.css", true);
+                    File.Copy(GlobalCache.TemplatePath + "toc.html", bookDir + "\\toc.html", true);
+                    File.Copy(GlobalCache.TemplatePath + "toc.ncx", bookDir + "\\toc.ncx", true);
+                }
+                if (hasBookExisting && i < bookCount) continue;
+
+                // generate content mykindlebook.html and generate content toc.html
+                GenerateBookContent(bookDir, i, bodyNode, tocNode, tocXmlNode, bookPath);
+            }
+
+        }
+
+        private void GenerateBookContent(string dir, int i, HtmlNode oldBodyNode, HtmlNode oldTocNode, XmlNode oldTocXmlNode, String fullBookName)
+        {
+            // generate content mykindlebook.html and generate content toc.html
+            HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
+            htmlDocument.Load(dir + "\\mykindlebook.html");
+            HtmlAgilityPack.HtmlDocument tocDocument = new HtmlAgilityPack.HtmlDocument();
+            tocDocument.Load(dir + "\\toc.html");
+            XmlDocument tocXml = new XmlDocument();
+
+            tocXml.Load(dir + "\\toc.ncx");
+            var ns = new XmlNamespaceManager(tocXml.NameTable);
+            ns.AddNamespace("ns", "http://www.daisy.org/z3986/2005/ncx/");
+
+            tocXml.SelectSingleNode("/ns:ncx/ns:docTitle/ns:text", ns).InnerText = fictionObject.Name + "- Quyển " + i.ToString();
+            tocXml.SelectSingleNode("/ns:ncx/ns:docAuthor/ns:text", ns).InnerText = fictionObject.Author;
+            XmlDocument opfXml = new XmlDocument();
+            opfXml.Load(dir + "\\mykindlebook.opf");
+            var nsmgr = new XmlNamespaceManager(opfXml.NameTable);
+            nsmgr.AddNamespace("dc", "http://purl.org/dc/elements/1.1/");
+            nsmgr.AddNamespace("ns", "http://www.idpf.org/2007/opf");
+            opfXml.SelectSingleNode("/ns:package/ns:metadata/dc:title", nsmgr).InnerText = fictionObject.Name + " - Quyển " + i.ToString();
+            opfXml.SelectSingleNode("/ns:package/ns:metadata/dc:creator", nsmgr).InnerText = fictionObject.Author;
+            opfXml.SelectSingleNode("/ns:package/ns:metadata/dc:date", nsmgr).InnerText = DateTime.Now.ToString("dd/MM/yyyy");
+            opfXml.Save(dir + "\\mykindlebook.opf");
+
+            htmlDocument.DocumentNode.SelectSingleNode("/html/head/title").InnerHtml = fictionObject.Name + " - Quyển " + i.ToString();
+            HtmlNode bodyNode = htmlDocument.DocumentNode.SelectSingleNode("/html/body");
+            HtmlNode tocNode = tocDocument.DocumentNode.SelectSingleNode("/html/body/div");
+
+            XmlNode tocXmlNode = tocXml.SelectSingleNode("/ns:ncx/ns:navMap", ns);
+            int translatedCount = translateMap.Keys.Count;
+
+            int start = (i - 1) * BOOK_CHAPTERS;
+            
+            int chapterCount = start;
+            int max = i * BOOK_CHAPTERS;
+            if (max > fictionObject.ChapterCount) max = fictionObject.ChapterCount;
+            while (chapterCount < max)
+            {
+                bodyNode.ChildNodes.Add(oldBodyNode.ChildNodes[chapterCount]);
+
+                // generate toc.html
+                tocNode.AppendChild(oldTocNode.ChildNodes[chapterCount]);
+                XmlNode oldXmlNode = oldTocXmlNode.ChildNodes[chapterCount];
+
+                // generate content toc.ncx
+                XmlNode navPoint = tocXml.CreateNode(XmlNodeType.Element, "navPoint", "http://www.daisy.org/z3986/2005/ncx/");
+                XmlNode navLabel = tocXml.CreateNode(XmlNodeType.Element, "navLabel", "http://www.daisy.org/z3986/2005/ncx/");
+                XmlNode text = tocXml.CreateNode(XmlNodeType.Element, "text", "http://www.daisy.org/z3986/2005/ncx/");
+
+                text.InnerText = oldXmlNode.ChildNodes[0].ChildNodes[0].InnerText;
+                navLabel.AppendChild(text);
+                navPoint.AppendChild(navLabel);
+                XmlNode content = tocXml.CreateNode(XmlNodeType.Element, "content", "http://www.daisy.org/z3986/2005/ncx/");
+                ((XmlElement)content).SetAttribute("src", ((XmlElement)oldXmlNode.ChildNodes[1]).GetAttribute("src"));
+                navPoint.AppendChild(content);
+                
+                ((XmlElement)navPoint).SetAttribute("class", "book");
+                ((XmlElement)navPoint).SetAttribute("id", ((XmlElement)oldXmlNode).GetAttribute("id"));
+                ((XmlElement)navPoint).SetAttribute("playOrder", ((XmlElement)oldXmlNode).GetAttribute("playOrder"));
+                tocXmlNode.AppendChild(navPoint);
+
+                chapterCount++;
+            }
+
+            htmlDocument.Save(dir + "\\mykindlebook.html");
+            tocDocument.Save(dir + "\\toc.html");
+            tocXml.Save(dir + "\\toc.ncx");
+        }
+
+        private void SaveEpub()
+        {
+            // copy template file
+            string dir = Setting.Default.Workspace + "\\" + fictionObject.Location;
+            Boolean formatFileExists = true;
+            if (!File.Exists(dir + "\\mykindlebook.opf"))
+            {
+                formatFileExists = false;
+                File.Copy(GlobalCache.TemplatePath + "mykindlebook.html", dir + "\\mykindlebook.html", true);
+                File.Copy(GlobalCache.TemplatePath + "mykindlebook.opf", dir + "\\mykindlebook.opf", true);
+                File.Copy(GlobalCache.TemplatePath + "style.css", dir + "\\style.css", true);
+                File.Copy(GlobalCache.TemplatePath + "toc.html", dir + "\\toc.html", true);
+                File.Copy(GlobalCache.TemplatePath + "toc.ncx", dir + "\\toc.ncx", true);
+
+            }
+
+            // generate content mykindlebook.html and generate content toc.html
+            HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
+            htmlDocument.Load(dir + "\\mykindlebook.html");
+            HtmlAgilityPack.HtmlDocument tocDocument = new HtmlAgilityPack.HtmlDocument();
+            tocDocument.Load(dir + "\\toc.html");
+
+            XmlDocument tocXml = new XmlDocument();
+
+            tocXml.Load(dir + "\\toc.ncx");
+            var ns = new XmlNamespaceManager(tocXml.NameTable);
+            ns.AddNamespace("ns", "http://www.daisy.org/z3986/2005/ncx/");
+
+            tocXml.SelectSingleNode("/ns:ncx/ns:docTitle/ns:text", ns).InnerText = fictionObject.Name;
+            tocXml.SelectSingleNode("/ns:ncx/ns:docAuthor/ns:text", ns).InnerText = fictionObject.Author;
+            XmlDocument opfXml = new XmlDocument();
+            opfXml.Load(dir + "\\mykindlebook.opf");
+            var nsmgr = new XmlNamespaceManager(opfXml.NameTable);
+            nsmgr.AddNamespace("dc", "http://purl.org/dc/elements/1.1/");
+            nsmgr.AddNamespace("ns", "http://www.idpf.org/2007/opf");
+            opfXml.SelectSingleNode("/ns:package/ns:metadata/dc:title", nsmgr).InnerText = fictionObject.Name;
+            opfXml.SelectSingleNode("/ns:package/ns:metadata/dc:creator", nsmgr).InnerText = fictionObject.Author;
+            opfXml.SelectSingleNode("/ns:package/ns:metadata/dc:date", nsmgr).InnerText = DateTime.Now.ToString("dd/MM/yyyy");
+            opfXml.Save(dir + "\\mykindlebook.opf");
+            
+            var links = htmlDocument.DocumentNode.SelectNodes("//a");
+            int step = 0;
+            if(links != null && links.Count > 0)
+            {
+                step = links.Count;
+            }
+
+
+            htmlDocument.DocumentNode.SelectSingleNode("/html/head/title").InnerHtml = fictionObject.Name;
+            HtmlNode bodyNode = htmlDocument.DocumentNode.SelectSingleNode("/html/body");
+            HtmlNode tocNode = tocDocument.DocumentNode.SelectSingleNode("/html/body/div");
+
+            XmlNode tocXmlNode = tocXml.SelectSingleNode("/ns:ncx/ns:navMap", ns);
+            int translatedCount = translateMap.Keys.Count;
+            for( int i = 0; i < translatedCount; i++ )
+            {
+                step++;
+                HtmlNode htmlNode = HtmlNode.CreateNode("<div><a name=\"chapter" + step + "\"><h1>" + step + ": " + chapterTranslateMap[i] + "</h1></a></div>");
+                string formattedContent = VBStrings.Replace(translateMap[i], "\r\n", "<br />");
+                //HtmlNode node = HtmlNode.CreateNode("<br /><span>dummytext</span>");
+                //node.InnerHtml = formattedContent;
+                htmlNode.AppendChild(HtmlNode.CreateNode("<br />"));
+                HtmlNode contentNode = HtmlNode.CreateNode("<span>temp</span");
+                contentNode.InnerHtml = formattedContent;
+                htmlNode.AppendChild(contentNode);
+                bodyNode.AppendChild(htmlNode);
+                
+                // generate toc.html
+                tocNode.AppendChild(HtmlNode.CreateNode("<div><a href=\"mykindlebook.html#chapter" + step + "\">" + step + ": " + chapterTranslateMap[i]+ " </a></div>"));
+
+                // generate content toc.ncx
+                XmlNode navPoint = tocXml.CreateNode(XmlNodeType.Element, "navPoint", "http://www.daisy.org/z3986/2005/ncx/");
+                XmlNode navLabel = tocXml.CreateNode(XmlNodeType.Element, "navLabel", "http://www.daisy.org/z3986/2005/ncx/");
+                XmlNode text = tocXml.CreateNode(XmlNodeType.Element, "text", "http://www.daisy.org/z3986/2005/ncx/");
+                text.InnerText = chapterTranslateMap[i];
+                navLabel.AppendChild(text);
+                navPoint.AppendChild(navLabel);
+                XmlNode content = tocXml.CreateNode(XmlNodeType.Element, "content", "http://www.daisy.org/z3986/2005/ncx/");
+                ((XmlElement)content).SetAttribute("src", "mykindlebook.html#chapter" + step);
+                navPoint.AppendChild(content);
+                // navPoint.InnerXml = "<navLabel><text>" + chapterTranslateMap[i] + "</text></navLabel><content src=\"mykindlebook.html#chapter" + step + "\"/>";
+                ((XmlElement)navPoint).SetAttribute("class", "book");
+                ((XmlElement)navPoint).SetAttribute("id", "level" + step);
+                ((XmlElement)navPoint).SetAttribute("playOrder", (step + 1).ToString());
+                tocXmlNode.AppendChild(navPoint);
+                // generate content mykindlebook.opf
+
+            }
+            htmlDocument.Save(dir + "\\mykindlebook.html");
+            tocDocument.Save(dir + "\\toc.html");
+            tocXml.Save(dir + "\\toc.ncx");
         }
 
         public void SaveTranslateFiles()
@@ -115,9 +499,12 @@ namespace VietphraseMixHTML
                 stepCount += (int)(translatedCount / mergeLimit) + 1;
                 StringBuilder contentBuilder = new StringBuilder();
                 int nextStop = startPoint + mergeLimit;
+                // if next stop larger than translated limit so nextstop is that limit
                 if (nextStop > translatedCount) nextStop = translatedCount;
+
                 for (int i = startPoint; i < nextStop; i++)
                 {
+                    contentBuilder.Append(chapterTranslateMap[i] + "\r\n");
                     contentBuilder.Append(translateMap[i] + "\r\n");
                 }
                 SaveToDisk(contentBuilder.ToString(), stepCount);
@@ -138,6 +525,7 @@ namespace VietphraseMixHTML
             {
                 string dir = Setting.Default.Workspace + "\\" + fictionObject.Location;
                 String zipFile = dir + @"\" + fictionObject.Name + ".zip";
+                String txtFile = dir + @"\" + fictionObject.Name + ".txt";
                 int step = fictionObject.GetPreviousStepCount() < 1 ? 1 : fictionObject.GetPreviousStepCount();
                 string path = dir + "\\" + string.Format("{0:000}", step) + ".txt";
                 if (File.Exists(path))
@@ -151,6 +539,8 @@ namespace VietphraseMixHTML
                         zip.AddFile(path, "");
                         zip.Save(zipFile);
                     }
+
+                    File.Copy(path, txtFile, true);
                     File.Delete(path);
                 }
             }

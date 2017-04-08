@@ -45,6 +45,8 @@ namespace VietphraseMixHTML
         public static string ChinesePhienAmPattern { get; set; }
         public static string NamesPattern { get; set; }
 
+        public static string TemplatePath {get;set; }
+
         public static void Init(string basePath)
         {
             ChinesePhienAmWords = new Dictionary<string, string>();
@@ -56,7 +58,7 @@ namespace VietphraseMixHTML
             DownloaderSignatures = new Dictionary<string, string>();
 
             string dir = basePath.Trim() + "\\data\\";
-
+            TemplatePath = basePath + "\\template\\";
             ReadFileToList(ChinesePhienAmWords, dir + "ChinesePhienAmWords.txt");
             ReadFileToList(Names, dir + "Names.txt");
             ReadFileToList(ThanhNgu, dir + "ThanhNgu.txt");

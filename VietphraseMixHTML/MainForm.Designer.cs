@@ -35,6 +35,9 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.label1 = new System.Windows.Forms.Label();
             this.grpFictionInformation = new System.Windows.Forms.GroupBox();
+            this.txtAuthor = new System.Windows.Forms.TextBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.txtUpdateSign = new System.Windows.Forms.TextBox();
             this.label14 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.chkSort = new System.Windows.Forms.CheckBox();
@@ -50,7 +53,6 @@
             this.rdoStringPrefix = new System.Windows.Forms.RadioButton();
             this.btnCancel = new System.Windows.Forms.Button();
             this.rdoIncremental = new System.Windows.Forms.RadioButton();
-            this.txtUpdateSign = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.chkSingleFile = new System.Windows.Forms.CheckBox();
             this.label15 = new System.Windows.Forms.Label();
@@ -108,6 +110,7 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.translateLabel = new System.Windows.Forms.Label();
             this.browser = new System.Windows.Forms.WebBrowser();
+            this.createMoreFileEpubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.grpFictionInformation.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.grpStatus.SuspendLayout();
@@ -127,6 +130,8 @@
             // 
             // grpFictionInformation
             // 
+            this.grpFictionInformation.Controls.Add(this.txtAuthor);
+            this.grpFictionInformation.Controls.Add(this.label16);
             this.grpFictionInformation.Controls.Add(this.txtUpdateSign);
             this.grpFictionInformation.Controls.Add(this.label14);
             this.grpFictionInformation.Controls.Add(this.label13);
@@ -148,17 +153,41 @@
             this.grpFictionInformation.Controls.Add(this.txtLocation);
             this.grpFictionInformation.Controls.Add(this.label2);
             this.grpFictionInformation.Controls.Add(this.txtHTMLLink);
-            this.grpFictionInformation.Location = new System.Drawing.Point(320, 27);
+            this.grpFictionInformation.Location = new System.Drawing.Point(322, 39);
             this.grpFictionInformation.Name = "grpFictionInformation";
-            this.grpFictionInformation.Size = new System.Drawing.Size(541, 328);
+            this.grpFictionInformation.Size = new System.Drawing.Size(541, 359);
             this.grpFictionInformation.TabIndex = 2;
             this.grpFictionInformation.TabStop = false;
             this.grpFictionInformation.Text = "Thông tin truyện";
             // 
+            // txtAuthor
+            // 
+            this.txtAuthor.Location = new System.Drawing.Point(9, 158);
+            this.txtAuthor.Name = "txtAuthor";
+            this.txtAuthor.Size = new System.Drawing.Size(425, 20);
+            this.txtAuthor.TabIndex = 23;
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(6, 143);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(64, 13);
+            this.label16.TabIndex = 22;
+            this.label16.Text = "Tên tác giả:";
+            // 
+            // txtUpdateSign
+            // 
+            this.txtUpdateSign.Location = new System.Drawing.Point(97, 207);
+            this.txtUpdateSign.Name = "txtUpdateSign";
+            this.txtUpdateSign.Size = new System.Drawing.Size(215, 20);
+            this.txtUpdateSign.TabIndex = 11;
+            this.txtUpdateSign.TextChanged += new System.EventHandler(this.txtUpdateSign_TextChanged);
+            // 
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(47, 194);
+            this.label14.Location = new System.Drawing.Point(46, 234);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(52, 13);
             this.label14.TabIndex = 21;
@@ -167,7 +196,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(329, 170);
+            this.label13.Location = new System.Drawing.Point(328, 210);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(29, 13);
             this.label13.TabIndex = 20;
@@ -176,7 +205,7 @@
             // chkSort
             // 
             this.chkSort.AutoSize = true;
-            this.chkSort.Location = new System.Drawing.Point(105, 193);
+            this.chkSort.Location = new System.Drawing.Point(104, 233);
             this.chkSort.Name = "chkSort";
             this.chkSort.Size = new System.Drawing.Size(138, 17);
             this.chkSort.TabIndex = 11;
@@ -185,7 +214,7 @@
             // 
             // txtPreviousStepCount
             // 
-            this.txtPreviousStepCount.Location = new System.Drawing.Point(364, 167);
+            this.txtPreviousStepCount.Location = new System.Drawing.Point(363, 207);
             this.txtPreviousStepCount.Name = "txtPreviousStepCount";
             this.txtPreviousStepCount.ReadOnly = true;
             this.txtPreviousStepCount.Size = new System.Drawing.Size(51, 20);
@@ -193,7 +222,7 @@
             // 
             // btnClearCache
             // 
-            this.btnClearCache.Location = new System.Drawing.Point(440, 165);
+            this.btnClearCache.Location = new System.Drawing.Point(439, 205);
             this.btnClearCache.Name = "btnClearCache";
             this.btnClearCache.Size = new System.Drawing.Size(90, 23);
             this.btnClearCache.TabIndex = 18;
@@ -204,7 +233,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(8, 146);
+            this.label12.Location = new System.Drawing.Point(7, 186);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(68, 13);
             this.label12.TabIndex = 17;
@@ -213,7 +242,7 @@
             // rdoNone
             // 
             this.rdoNone.AutoSize = true;
-            this.rdoNone.Location = new System.Drawing.Point(384, 144);
+            this.rdoNone.Location = new System.Drawing.Point(383, 184);
             this.rdoNone.Name = "rdoNone";
             this.rdoNone.Size = new System.Drawing.Size(83, 17);
             this.rdoNone.TabIndex = 16;
@@ -236,7 +265,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(8, 170);
+            this.label11.Location = new System.Drawing.Point(7, 210);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(91, 13);
             this.label11.TabIndex = 15;
@@ -254,7 +283,7 @@
             // rdoRegExp
             // 
             this.rdoRegExp.AutoSize = true;
-            this.rdoRegExp.Location = new System.Drawing.Point(262, 144);
+            this.rdoRegExp.Location = new System.Drawing.Point(261, 184);
             this.rdoRegExp.Name = "rdoRegExp";
             this.rdoRegExp.Size = new System.Drawing.Size(116, 17);
             this.rdoRegExp.TabIndex = 14;
@@ -274,7 +303,7 @@
             // rdoStringPrefix
             // 
             this.rdoStringPrefix.AutoSize = true;
-            this.rdoStringPrefix.Location = new System.Drawing.Point(163, 144);
+            this.rdoStringPrefix.Location = new System.Drawing.Point(162, 184);
             this.rdoStringPrefix.Name = "rdoStringPrefix";
             this.rdoStringPrefix.Size = new System.Drawing.Size(93, 17);
             this.rdoStringPrefix.TabIndex = 13;
@@ -296,7 +325,7 @@
             // rdoIncremental
             // 
             this.rdoIncremental.AutoSize = true;
-            this.rdoIncremental.Location = new System.Drawing.Point(86, 144);
+            this.rdoIncremental.Location = new System.Drawing.Point(85, 184);
             this.rdoIncremental.Name = "rdoIncremental";
             this.rdoIncremental.Size = new System.Drawing.Size(71, 17);
             this.rdoIncremental.TabIndex = 12;
@@ -304,14 +333,6 @@
             this.rdoIncremental.Text = "Tăng dần";
             this.rdoIncremental.UseVisualStyleBackColor = true;
             this.rdoIncremental.CheckedChanged += new System.EventHandler(this.rdoIncremental_CheckedChanged);
-            // 
-            // txtUpdateSign
-            // 
-            this.txtUpdateSign.Location = new System.Drawing.Point(98, 167);
-            this.txtUpdateSign.Name = "txtUpdateSign";
-            this.txtUpdateSign.Size = new System.Drawing.Size(215, 20);
-            this.txtUpdateSign.TabIndex = 11;
-            this.txtUpdateSign.TextChanged += new System.EventHandler(this.txtUpdateSign_TextChanged);
             // 
             // groupBox2
             // 
@@ -329,7 +350,7 @@
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.txtLimit);
-            this.groupBox2.Location = new System.Drawing.Point(6, 226);
+            this.groupBox2.Location = new System.Drawing.Point(9, 257);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(520, 96);
             this.groupBox2.TabIndex = 4;
@@ -547,7 +568,7 @@
             this.grpStatus.Controls.Add(this.lblDownloadFile);
             this.grpStatus.Controls.Add(this.label8);
             this.grpStatus.Controls.Add(this.progressDownloadBar);
-            this.grpStatus.Location = new System.Drawing.Point(320, 361);
+            this.grpStatus.Location = new System.Drawing.Point(320, 404);
             this.grpStatus.Name = "grpStatus";
             this.grpStatus.Size = new System.Drawing.Size(541, 119);
             this.grpStatus.TabIndex = 5;
@@ -634,7 +655,7 @@
             // 
             // btnAdd
             // 
-            this.btnAdd.Location = new System.Drawing.Point(12, 506);
+            this.btnAdd.Location = new System.Drawing.Point(11, 534);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(75, 28);
             this.btnAdd.TabIndex = 3;
@@ -644,7 +665,7 @@
             // 
             // btnUpdate
             // 
-            this.btnUpdate.Location = new System.Drawing.Point(12, 466);
+            this.btnUpdate.Location = new System.Drawing.Point(11, 494);
             this.btnUpdate.Name = "btnUpdate";
             this.btnUpdate.Size = new System.Drawing.Size(75, 23);
             this.btnUpdate.TabIndex = 4;
@@ -654,7 +675,7 @@
             // 
             // btnDelete
             // 
-            this.btnDelete.Location = new System.Drawing.Point(195, 506);
+            this.btnDelete.Location = new System.Drawing.Point(194, 534);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(60, 28);
             this.btnDelete.TabIndex = 5;
@@ -664,7 +685,7 @@
             // 
             // btnQuit
             // 
-            this.btnQuit.Location = new System.Drawing.Point(786, 509);
+            this.btnQuit.Location = new System.Drawing.Point(786, 539);
             this.btnQuit.Name = "btnQuit";
             this.btnQuit.Size = new System.Drawing.Size(75, 23);
             this.btnQuit.TabIndex = 6;
@@ -716,7 +737,7 @@
             this.dgvFictions.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvFictions.RowHeadersVisible = false;
             this.dgvFictions.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvFictions.Size = new System.Drawing.Size(302, 405);
+            this.dgvFictions.Size = new System.Drawing.Size(302, 433);
             this.dgvFictions.TabIndex = 7;
             this.dgvFictions.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.dgvFictions_DataError);
             this.dgvFictions.SelectionChanged += new System.EventHandler(this.dataGridView1_SelectionChanged);
@@ -788,10 +809,11 @@
             this.dichTungFileDonLeToolStripMenuItem,
             this.capNhatEncodingToolStripMenuItem1,
             this.gopNhieuFileVaoMotToolStripMenuItem,
-            this.taoFileZipToolStripMenuItem});
+            this.taoFileZipToolStripMenuItem,
+            this.createMoreFileEpubToolStripMenuItem});
             this.tienIchToolStripMenuItem.Name = "tienIchToolStripMenuItem";
             this.tienIchToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
-            this.tienIchToolStripMenuItem.Text = "Tiện Ích";
+            this.tienIchToolStripMenuItem.Text = "Tiện ich";
             // 
             // danhSachLinkToolStripMenuItem
             // 
@@ -830,7 +852,7 @@
             // 
             // btnEdit
             // 
-            this.btnEdit.Location = new System.Drawing.Point(93, 506);
+            this.btnEdit.Location = new System.Drawing.Point(92, 534);
             this.btnEdit.Name = "btnEdit";
             this.btnEdit.Size = new System.Drawing.Size(75, 28);
             this.btnEdit.TabIndex = 9;
@@ -840,7 +862,7 @@
             // 
             // btnUpdateAll
             // 
-            this.btnUpdateAll.Location = new System.Drawing.Point(93, 466);
+            this.btnUpdateAll.Location = new System.Drawing.Point(92, 494);
             this.btnUpdateAll.Name = "btnUpdateAll";
             this.btnUpdateAll.Size = new System.Drawing.Size(109, 23);
             this.btnUpdateAll.TabIndex = 10;
@@ -853,7 +875,7 @@
             this.chkRunBackground.AutoSize = true;
             this.chkRunBackground.Checked = true;
             this.chkRunBackground.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkRunBackground.Location = new System.Drawing.Point(320, 486);
+            this.chkRunBackground.Location = new System.Drawing.Point(326, 529);
             this.chkRunBackground.Name = "chkRunBackground";
             this.chkRunBackground.Size = new System.Drawing.Size(71, 17);
             this.chkRunBackground.TabIndex = 11;
@@ -876,7 +898,7 @@
             // 
             this.translateLabel.AutoSize = true;
             this.translateLabel.BackColor = System.Drawing.Color.Transparent;
-            this.translateLabel.Location = new System.Drawing.Point(367, 519);
+            this.translateLabel.Location = new System.Drawing.Point(367, 549);
             this.translateLabel.Name = "translateLabel";
             this.translateLabel.Size = new System.Drawing.Size(132, 13);
             this.translateLabel.TabIndex = 13;
@@ -890,11 +912,18 @@
             this.browser.Size = new System.Drawing.Size(32, 32);
             this.browser.TabIndex = 14;
             // 
+            // createMoreFileEpubToolStripMenuItem
+            // 
+            this.createMoreFileEpubToolStripMenuItem.Name = "createMoreFileEpubToolStripMenuItem";
+            this.createMoreFileEpubToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
+            this.createMoreFileEpubToolStripMenuItem.Text = "Tao nhieu file ebook";
+            this.createMoreFileEpubToolStripMenuItem.Click += new System.EventHandler(this.createMoreFileEpubToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(863, 538);
+            this.ClientSize = new System.Drawing.Size(863, 574);
             this.Controls.Add(this.browser);
             this.Controls.Add(this.translateLabel);
             this.Controls.Add(this.lblUpdate);
@@ -1007,5 +1036,8 @@
         private System.Windows.Forms.ToolStripMenuItem capNhatEncodingToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem gopNhieuFileVaoMotToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem taoFileZipToolStripMenuItem;
+        private System.Windows.Forms.TextBox txtAuthor;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.ToolStripMenuItem createMoreFileEpubToolStripMenuItem;
     }
 }
