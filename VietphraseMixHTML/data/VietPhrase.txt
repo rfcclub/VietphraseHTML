@@ -69880,7 +69880,6 @@
 使她=khiến nàng
 使尽=đem hết
 使得=khiến cho /đánh rất
-使然=cho phép
 使用=sử dụng
 使者=sứ giả
 侄女=chất nữ :cháu gái
@@ -70358,7 +70357,6 @@
 儿臣=nhi thần
 兀怪=chớ trách
 兀自=vẫn
-允许=cho phép
 元婴=nguyên anh
 元帅=Nguyên soái
 元气=nguyên khí
@@ -90048,7 +90046,6 @@
 讲述=giảng thuật
 讶然=kinh ngạc
 许久=hồi lâu
-许了=cho phép
 许伯=Hứa bá
 许侄=Hứa điệt
 许儿=Hứa nhi
@@ -95149,7 +95146,6 @@
 让=để/làm cho
 记=nhớ
 讲=nói
-许=cho phép
 讹=hạch
 论=nói /bàn về
 试=thử

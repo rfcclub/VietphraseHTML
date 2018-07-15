@@ -135,7 +135,7 @@ namespace VietphraseMixHTML
             {
                 string url = null;
                 url = item.ToString();
-                if(!url.StartsWith("http://"))
+                if(!url.StartsWith("http://") && !url.StartsWith("https://"))
                 {
                     
                     if (url.StartsWith("/"))
@@ -150,7 +150,7 @@ namespace VietphraseMixHTML
                     if(!moveToRoot) url = Url.Substring(0, Url.LastIndexOf("/") + 1) + url;
                     else
                     {
-                        url = Url.Substring(0, Url.IndexOf("/", 7) + 1) + url;
+                        url = Url.Substring(0, Url.IndexOf("/", 8) + 1) + url;
                         moveToRoot = false;
                     }
                 }
@@ -310,10 +310,11 @@ namespace VietphraseMixHTML
                     }
                     break;
                 case UpdateSignType.StringPrefix:
+                    string sign = txtUpdateSign.Text.Trim();
                     for (int i = 0; i < lstLinks.Items.Count; i++)
                     {
                         string item = (string)lstLinks.Items[i];
-                        if(item.StartsWith(txtUpdateSign.Text.Trim()))
+                        if(item.StartsWith(sign) && !item.EndsWith(sign))
                         {
                             lstLinks.SetSelected(i, true);
                         }

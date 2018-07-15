@@ -33,7 +33,7 @@ namespace VietphraseMixHTML
 
         public void UpdateContentList()
         {
-            if (NewFilesList.Count > 0)
+            if (NewFilesList != null && NewFilesList.Count > 0)
             {
                 IList<string> list = new List<string>();
                 for (int i=0;i < NewFilesList.Count; i++)
@@ -194,7 +194,7 @@ namespace VietphraseMixHTML
             List<string> lstLinks = new List<string>();
             HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
             WebRequest request = WebRequest.Create(HTMLLink);
-            htmlDocument.Load(request.GetResponse().GetResponseStream());
+            htmlDocument.Load(request.GetResponse().GetResponseStream(), ContentEncoding);
             string buildNewLink = null;
             bool moveToRoot = false;
             HtmlNodeCollection links = htmlDocument.DocumentNode.SelectNodes("//a");
@@ -217,10 +217,14 @@ namespace VietphraseMixHTML
                         newLink = newLink.Substring(newLink.LastIndexOf("/") + 1);
                     }
 
-                    if(!moveToRoot) buildNewLink = HTMLLink.Substring(0, HTMLLink.LastIndexOf("/") + 1) + newLink;
+                    if (!moveToRoot)
+                    {
+                        buildNewLink = HTMLLink.Substring(0, HTMLLink.LastIndexOf("/") + 1) + newLink;
+                    }
                     else
                     {
-                        buildNewLink = HTMLLink.Substring(0, HTMLLink.IndexOf("/", 7) + 1) + newLink;
+                        int startPoint = HTMLLink.StartsWith("https") ? 8 : 7;
+                        buildNewLink = HTMLLink.Substring(0, HTMLLink.IndexOf("/", startPoint) + 1) + newLink;
                         moveToRoot = false;
                     }
                 }
@@ -308,7 +312,7 @@ namespace VietphraseMixHTML
                     if(test > 0) return true;
                     break;
                 case UpdateSignType.StringPrefix:
-                    return link.StartsWith(UpdateSignString) ? true : false;
+                    return link.StartsWith(UpdateSignString) && !link.EndsWith(UpdateSignString) ? true : false;
                 case UpdateSignType.RegExp:
                     return System.Text.RegularExpressions.Regex.IsMatch(link, UpdateSignString);
                 default:

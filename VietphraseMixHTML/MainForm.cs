@@ -66,8 +66,8 @@ namespace VietphraseMixHTML
 
             // save current fictional object
             BtnSaveFictionObjectClick(null,null);
-
             ProcessCurrentFictionObject();
+           
         }
 
         private void ProcessCurrentFictionObject()
@@ -177,14 +177,14 @@ namespace VietphraseMixHTML
         private void DoCompleteWorks()
         {
             //FictionObjectManager.Instance.Save();
-
+            
             _currentFictionObject.Save();
             _currentFictionObject.PreviousStepCount = _stepCount;
             ResetPrivateVariables();
             LockInformation(VIEW_MODE);
             StopAllThreads();
             InformationBox.Show("OK!", new AutoCloseParameters(1));
-
+            RefreshDataGrid();
             _currentFictionObject = null;
             CheckGrandQueue();
         }
@@ -380,6 +380,18 @@ namespace VietphraseMixHTML
             int currentCount = 0;
             foreach (var url in _currentFictionObject.NewFilesList)
             {
+                bool isExisting = false;
+                foreach(var curUrl in _currentFictionObject.FilesList)
+                {
+                    if (curUrl.Equals(url.Trim()))
+                    {
+                        isExisting = true;
+                        break;
+                    }
+                }
+
+                if (isExisting) continue;
+
                 string htmlContent = null;
                 
                 // process content and convert it from chinese encoding to UTF-8 encoding
@@ -594,8 +606,9 @@ namespace VietphraseMixHTML
                 }
 
             }
-
-            _processingQueue.Clear();            
+           
+            _processingQueue.Clear();
+            Console.WriteLine(_currentFictionObject.Name + " translated completely");
         }
 
         #region backup
@@ -1551,6 +1564,12 @@ namespace VietphraseMixHTML
         {
             TranslateCenter center = new TranslateCenter(_currentFictionObject, _currentFictionObject.ChapterCount, 2000, null);
             center.SaveMultipleEpub();
+        }
+
+        private void taoMotFileEbookToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TranslateCenter center = new TranslateCenter(_currentFictionObject, _currentFictionObject.ChapterCount, 2000, null);
+            center.ConvertToKindle();
         }
     }
 }

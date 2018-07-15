@@ -103,6 +103,8 @@
             this.capNhatEncodingToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.gopNhieuFileVaoMotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.taoFileZipToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createMoreFileEpubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.taoMotFileEbookToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnEdit = new System.Windows.Forms.Button();
             this.btnUpdateAll = new System.Windows.Forms.Button();
             this.chkRunBackground = new System.Windows.Forms.CheckBox();
@@ -110,7 +112,6 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.translateLabel = new System.Windows.Forms.Label();
             this.browser = new System.Windows.Forms.WebBrowser();
-            this.createMoreFileEpubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.grpFictionInformation.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.grpStatus.SuspendLayout();
@@ -725,6 +726,7 @@
             dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.dgvFictions.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgvFictions.Location = new System.Drawing.Point(12, 55);
+            this.dgvFictions.MultiSelect = false;
             this.dgvFictions.Name = "dgvFictions";
             this.dgvFictions.ReadOnly = true;
             dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -810,7 +812,8 @@
             this.capNhatEncodingToolStripMenuItem1,
             this.gopNhieuFileVaoMotToolStripMenuItem,
             this.taoFileZipToolStripMenuItem,
-            this.createMoreFileEpubToolStripMenuItem});
+            this.createMoreFileEpubToolStripMenuItem,
+            this.taoMotFileEbookToolStripMenuItem});
             this.tienIchToolStripMenuItem.Name = "tienIchToolStripMenuItem";
             this.tienIchToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.tienIchToolStripMenuItem.Text = "Tiện ich";
@@ -849,6 +852,20 @@
             this.taoFileZipToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
             this.taoFileZipToolStripMenuItem.Text = "Tạo file zip";
             this.taoFileZipToolStripMenuItem.Click += new System.EventHandler(this.taoFileZipToolStripMenuItem_Click);
+            // 
+            // createMoreFileEpubToolStripMenuItem
+            // 
+            this.createMoreFileEpubToolStripMenuItem.Name = "createMoreFileEpubToolStripMenuItem";
+            this.createMoreFileEpubToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
+            this.createMoreFileEpubToolStripMenuItem.Text = "Tao nhieu file ebook";
+            this.createMoreFileEpubToolStripMenuItem.Click += new System.EventHandler(this.createMoreFileEpubToolStripMenuItem_Click);
+            // 
+            // taoMotFileEbookToolStripMenuItem
+            // 
+            this.taoMotFileEbookToolStripMenuItem.Name = "taoMotFileEbookToolStripMenuItem";
+            this.taoMotFileEbookToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
+            this.taoMotFileEbookToolStripMenuItem.Text = "Tao mot file ebook";
+            this.taoMotFileEbookToolStripMenuItem.Click += new System.EventHandler(this.taoMotFileEbookToolStripMenuItem_Click);
             // 
             // btnEdit
             // 
@@ -911,13 +928,6 @@
             this.browser.Name = "browser";
             this.browser.Size = new System.Drawing.Size(32, 32);
             this.browser.TabIndex = 14;
-            // 
-            // createMoreFileEpubToolStripMenuItem
-            // 
-            this.createMoreFileEpubToolStripMenuItem.Name = "createMoreFileEpubToolStripMenuItem";
-            this.createMoreFileEpubToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.createMoreFileEpubToolStripMenuItem.Text = "Tao nhieu file ebook";
-            this.createMoreFileEpubToolStripMenuItem.Click += new System.EventHandler(this.createMoreFileEpubToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -1039,5 +1049,6 @@
         private System.Windows.Forms.TextBox txtAuthor;
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.ToolStripMenuItem createMoreFileEpubToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem taoMotFileEbookToolStripMenuItem;
     }
 }

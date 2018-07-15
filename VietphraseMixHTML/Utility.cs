@@ -301,6 +301,24 @@ namespace VietphraseMixHTML
                 {
                     string text = node.InnerText;
                     text = text.Replace("<br/>", "\r\n");
+                    
+                    return StripHTML(text);
+                }
+                else
+                {
+                    return StripHTML(original);
+                }
+            }
+            else if (fictionObject.HTMLLink.IndexOf("17k.com") > 0)
+            {
+                HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
+                htmlDocument.LoadHtml(original);
+                var node = htmlDocument.DocumentNode.SelectSingleNode("//div[@id=\"chapterContentWapper\"]");
+                if (node != null)
+                {
+                    string text = node.InnerText;
+                    text = text.Replace("<br/>", "\r\n");
+                    text = text.Replace("< br />", "\r\n");
                     return StripHTML(text);
                 }
                 else
