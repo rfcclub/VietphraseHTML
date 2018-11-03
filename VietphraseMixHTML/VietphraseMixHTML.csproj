@@ -168,7 +168,7 @@
     <Compile Include="SettingForm.Designer.cs">
       <DependentUpon>SettingForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="TranslateCenter.cs" />
+    <Compile Include="TranslateExecutor.cs" />
     <Compile Include="TranslateSingleForm.cs">
       <SubType>Form</SubType>
     </Compile>
