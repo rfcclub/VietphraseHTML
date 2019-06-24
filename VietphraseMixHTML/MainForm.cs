@@ -590,7 +590,7 @@ namespace VietphraseMixHTML
         {
 
             int mergeLimit = Int32.Parse(txtLimit.Text);
-            TranslateCenter center = new TranslateCenter(_currentFictionObject, _maxProcessingCount, mergeLimit, ((WorkingThread)sender));
+            TranslateExecutor center = new TranslateExecutor(_currentFictionObject, _maxProcessingCount, mergeLimit, ((WorkingThread)sender));
             center.ProcessedLinkList = _processedLinkList;
             center.SaveChinese = chkChinese.Checked;
             center.SingleFile = chkSingleFile.Checked;
@@ -601,8 +601,8 @@ namespace VietphraseMixHTML
                 waitProcess.WaitOne();
                 while (_processingQueue.Count > 0)
                 {
-                    string original = _processingQueue.Dequeue();
-                    center.Translate(original);
+                    string downloadChineseText = _processingQueue.Dequeue();
+                    center.Translate(downloadChineseText);
                 }
 
             }
@@ -1562,14 +1562,20 @@ namespace VietphraseMixHTML
 
         private void createMoreFileEpubToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TranslateCenter center = new TranslateCenter(_currentFictionObject, _currentFictionObject.ChapterCount, 2000, null);
+            TranslateExecutor center = new TranslateExecutor(_currentFictionObject, _currentFictionObject.ChapterCount, 2000, null);
             center.SaveMultipleEpub();
         }
 
         private void taoMotFileEbookToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TranslateCenter center = new TranslateCenter(_currentFictionObject, _currentFictionObject.ChapterCount, 2000, null);
+            TranslateExecutor center = new TranslateExecutor(_currentFictionObject, _currentFictionObject.ChapterCount, 2000, null);
             center.ConvertToKindle();
+        }
+
+        private void cleanKindleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TranslateExecutor center = new TranslateExecutor(_currentFictionObject, _currentFictionObject.ChapterCount, 2000, null);
+            center.ClearKindleFile();
         }
     }
 }
