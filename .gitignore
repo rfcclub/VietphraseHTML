@@ -12,7 +12,11 @@
 /VietphraseMixHTML/bin/Debug
 /VietphraseMixHTML/obj/Debug
 /VietphraseMixHTML/bin/Debug
-
+/.vs/VietphraseMixHTML/v16/.suo
+/.vs/VietphraseMixHTML/v16/Server/sqlite3
+/.vs/slnx.sqlite
+/VietphraseMixHTML/obj/Release
+/.vs
 /.vs/VietphraseMixHTML/DesignTimeBuild
 /.vs/VietphraseMixHTML/v15/Server/sqlite3
 
