@@ -59,6 +59,8 @@ namespace VietphraseMixHTML
             lstLinks.Items.Clear();
             HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
             //HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url);
+            //Trust all certificates
+            System.Net.ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             WebClient client = new WebClient();
             // request.Timeout = 60*10*1000;
             /* HttpWebResponse response = (HttpWebResponse)request.GetResponse();

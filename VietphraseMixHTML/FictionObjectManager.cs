@@ -117,27 +117,18 @@ namespace VietphraseMixHTML
             if (file2s != null && file2s.Length > 0)
             {
                 bool loaded = false;
-                Stream stream = null;
+            
                 foreach (string file in file2s)
                 {
-
+                    StreamReader writer = null;
                     try
                     {
-                        StreamReader writer = new StreamReader(file,                                      
+                        writer = new StreamReader(file,                                      
                                       Encoding.UTF8,false);
                         var serializer = new Newtonsoft.Json.JsonSerializer();
                         FictionObject fictionObject = (FictionObject)serializer.Deserialize(writer,typeof(FictionObject));
-                        
-                        //stream = File.Open(file, FileMode.Open);
-                        ////BinaryFormatter bf = new BinaryFormatter();
-
-                        ////FictionObject fictionObject = (FictionObject)bf.Deserialize(stream);
-                        //var streamReader = new StreamReader(stream);
-                        //var reader = new TypeSerializer<FictionObject>();
-                        //FictionObject fictionObject = reader.DeserializeFromReader(streamReader);
                         fictionObject.RecalculatePreviousStepCount();
                         Add(fictionObject);
-                        writer.Close();
                         loaded = true;
                     }
                     catch (Exception ex)
@@ -146,8 +137,8 @@ namespace VietphraseMixHTML
                     }
                     finally
                     {
-                        if (stream != null) stream.Close();
-                        stream = null;
+                        if (writer != null) writer.Close();
+                        writer = null;
                     }
                     if(loaded) return;
                 }

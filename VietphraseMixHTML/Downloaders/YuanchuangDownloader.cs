@@ -19,7 +19,8 @@ namespace VietphraseMixHTML.Downloaders
                 // we need 2 round trip to server to get the real file   
                 bool isLoading = true;
                 bool isSecondLoad = true;
-
+                //Trust all certificates
+                System.Net.ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
                 Browser.DocumentCompleted += (s, e) =>
                 {
                     if (isLoading)

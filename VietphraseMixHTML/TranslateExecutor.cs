@@ -155,26 +155,26 @@ namespace VietphraseMixHTML
 
         private void ConvertToEpubs(bool overrideAll)
         {
-            if (fictionObject.ChapterCount <= BOOK_CHAPTERS)
+            /*if (fictionObject.ChapterCount <= BOOK_CHAPTERS)
             {
                 SaveSingleFile();
             }
             else
-            {
-                SaveEpub();
-                // copy template file
-                string dir = Setting.Default.Workspace + "\\" + fictionObject.Location;
-                PopulateExistFile(dir, overrideAll);
-                Stop();
-                ConvertAllToKindle(dir, overrideAll);
-            }
+            {*/
+            SaveEpub();
+            // copy template file
+            string dir = Setting.Default.Workspace + "\\" + fictionObject.Location;
+            PopulateExistFile(dir, overrideAll);
+            Stop();
+            ConvertAllToKindle(dir, overrideAll);
+            //}
         }
 
         private void SaveSingleFile()
         {
             SaveEpub();
             Stop();
-            ConvertToKindle();
+           
         }
 
         private Image DrawCover(String text, String author, Font font, Font authorFont, Color textColor, Color backColor)
@@ -211,57 +211,22 @@ namespace VietphraseMixHTML
 
         }
 
-        public void ConvertToKindle()
-        {
-            if (reportThread != null) reportThread.ReportProgress(0, "Start convert to Kindle MOBI");
-            string dir = Setting.Default.Workspace + "\\" + fictionObject.Location;
-            Image cover = DrawCover(fictionObject.Name, fictionObject.Author, 
-                new Font("Arial", 30, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel),
-                new Font("Arial", 18, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel),
-                Color.Black, Color.White);
-            cover.Save(dir + "\\mycover.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
-            cover.Dispose();
-            if (File.Exists(dir + @"\" + fictionObject.Name)) File.Delete(dir + @"\" + fictionObject.Name);
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.CreateNoWindow = true;
-            startInfo.UseShellExecute = true;
-            startInfo.WindowStyle = ProcessWindowStyle.Normal;
-            startInfo.FileName = "C:\\kindlegen\\kindlegen.exe";
-            string compressOption = "-c1";
-            if(fictionObject.ChapterCount >= BOOK_CHAPTERS)
-            {
-                compressOption = "-c0";
-            }
-            startInfo.Arguments = dir + "\\mykindlebook.opf " + compressOption + " -dont_append_source -o " + fictionObject.Name + ".mobi";
 
-            // Start the process with the info we specified.
-            // Call WaitForExit and then the using statement will close.
-            using (Process exeProcess = Process.Start(startInfo))
-            {
-                exeProcess.WaitForExit();
-            }
-            if (reportThread != null) reportThread.ReportProgress(0, "Convert to Kindle MOBI successfully");
-        }
 
         public void SaveMultipleEpub()
         {
-            
-            if(fictionObject.ChapterCount <= BOOK_CHAPTERS)
-            {
-                // SaveEpub(); // do nothing for now
-                return;
-            }
+
             // copy template file
             string dir = Setting.Default.Workspace + "\\" + fictionObject.Location;
             PopulateExistFile(dir, true);
             ConvertAllToKindle(dir, true);
         }
 
-        private void ConvertAllToKindle(string dir, bool overrideAll)
+        public void ConvertAllToKindle(string dir, bool overrideAll)
         {
             int steps = fictionObject.ChapterCount;
-            int bookCount = steps / BOOK_CHAPTERS;
-            if (steps % (bookCount * BOOK_CHAPTERS) > 0) bookCount = bookCount + 1;
+            int bookCount = steps <= BOOK_CHAPTERS? 1: steps / BOOK_CHAPTERS;
+            if (steps > BOOK_CHAPTERS && steps % (bookCount * BOOK_CHAPTERS) > 0) bookCount = bookCount + 1;
             for (int i = 1; i <= bookCount; i++)
             {
                 string bookDir = dir + "\\Book_" + i.ToString();
@@ -287,12 +252,12 @@ namespace VietphraseMixHTML
                     ProcessStartInfo startInfo = new ProcessStartInfo();
                     startInfo.CreateNoWindow = true;
                     startInfo.UseShellExecute = true;
-                    startInfo.WindowStyle = ProcessWindowStyle.Normal;
+                    startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     startInfo.FileName = "C:\\kindlegen\\kindlegen.exe";
-                    string compressOption = "-c2";
+                    string compressOption = "-c1";
                     if (fictionObject.ChapterCount >= BOOK_CHAPTERS)
                     {
-                        compressOption = "-c1";
+                        compressOption = "-c0";
                     }
                     startInfo.Arguments = bookDir + "\\mykindlebook.opf " + compressOption + " -dont_append_source -o " + this.fictionObject.Name + "_" + i.ToString() + ".mobi";
 
@@ -326,7 +291,7 @@ namespace VietphraseMixHTML
                 startInfo.CreateNoWindow = true;
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
                 startInfo.FileName = "c:\\kindleunpack\\unpack.cmd";
-                startInfo.UseShellExecute = true;
+                startInfo.UseShellExecute = false;
                 startInfo.Arguments = bookPath + " " + bookDir;
                 // Start the process with the info we specified.
                 // Call WaitForExit and then the using statement will close.
@@ -388,8 +353,11 @@ namespace VietphraseMixHTML
           
             
             int steps = fictionObject.ChapterCount;
-            int bookCount = steps / BOOK_CHAPTERS;
-            if (steps % (bookCount * BOOK_CHAPTERS) > 0) bookCount = bookCount + 1;
+            int bookCount = steps <= BOOK_CHAPTERS? 1 : steps / BOOK_CHAPTERS;
+            if (steps > BOOK_CHAPTERS && steps % (bookCount * BOOK_CHAPTERS) > 0)
+            {
+                bookCount = bookCount + 1;
+            }
             for (int i = 1;i <=bookCount; i ++)
             {
                 string bookDir = dir + "\\Book_" + i.ToString();

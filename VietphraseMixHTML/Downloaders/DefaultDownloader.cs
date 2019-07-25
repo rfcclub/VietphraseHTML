@@ -27,12 +27,18 @@ namespace VietphraseMixHTML.Downloaders
         public  string ClientDownload(string url)
         {
             string htmlContent = null;
-            Utility.TryActionHelper(delegate() { htmlContent = Client.DownloadString(url); }, RetryCount);
+            Utility.TryActionHelper(delegate() {
+                //Trust all certificates
+                System.Net.ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+                htmlContent = Client.DownloadString(url);
+            }, RetryCount);
             return htmlContent;
         }
 
         public virtual HtmlAgilityPack.HtmlDocument GetHtmlDocument(string url)
         {
+            //Trust all certificates
+            System.Net.ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             var htmlDocument = new HtmlAgilityPack.HtmlDocument();
             var request = (HttpWebRequest) WebRequest.Create(url);
 

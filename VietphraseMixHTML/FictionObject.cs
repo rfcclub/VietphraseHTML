@@ -192,6 +192,8 @@ namespace VietphraseMixHTML
             NewFilesList.Clear();
             NewChapterNamesList.Clear();
             List<string> lstLinks = new List<string>();
+            //Trust all certificates
+            System.Net.ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
             WebRequest request = WebRequest.Create(HTMLLink);
             htmlDocument.Load(request.GetResponse().GetResponseStream(), ContentEncoding);
@@ -205,7 +207,7 @@ namespace VietphraseMixHTML
                 if (att == null) continue;
                 string newLink = att.Value;
                 if (!MatchUpdateSign(newLink)) continue;
-                if (!newLink.StartsWith("http://"))
+                if (!newLink.StartsWith("http://") && !newLink.StartsWith("https://"))
                 {
                     if (newLink.StartsWith("/"))
                     {

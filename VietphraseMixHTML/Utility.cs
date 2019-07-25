@@ -425,6 +425,7 @@ namespace VietphraseMixHTML
                 catch (Exception ex)
                 {
                     retry = (--retryCount) > 0 ? true : false;
+                    Console.WriteLine(ex.Message);
                 }
             } while (retry);
         }

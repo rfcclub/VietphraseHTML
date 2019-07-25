@@ -8,6 +8,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 using HtmlAgilityPack;
 using InfoBox;
 using VietphraseMixHTML.Downloaders;
@@ -334,7 +336,7 @@ namespace VietphraseMixHTML
         private void FictionDownload(object sender)
         {
             bool pageNotFound = false;
-            
+
             //WebClient webClient = new WebClient();
             WebClient webClient = PrepareWebClient();
             //Encoding chineseEncoding = Encoding.GetEncoding("GB2312");
@@ -1569,7 +1571,7 @@ namespace VietphraseMixHTML
         private void taoMotFileEbookToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TranslateExecutor center = new TranslateExecutor(_currentFictionObject, _currentFictionObject.ChapterCount, 2000, null);
-            center.ConvertToKindle();
+            center.SaveMultipleEpub();
         }
 
         private void cleanKindleToolStripMenuItem_Click(object sender, EventArgs e)

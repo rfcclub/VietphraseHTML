@@ -21,6 +21,7 @@ namespace VietphraseMixHTML
         {
             string originalName = textBoxOriginalSite.Text.Trim();
             string newName = textBoxNewSite.Text.Trim();
+            if (string.IsNullOrEmpty(originalName) || string.IsNullOrEmpty(newName)) return;
             FictionObjectManager manager = FictionObjectManager.Instance;
             foreach(FictionObject fictionObj in manager.ProjectList)
             {
@@ -29,6 +30,21 @@ namespace VietphraseMixHTML
                     string htmlLink = fictionObj.HTMLLink;
                     htmlLink = htmlLink.Replace(originalName, newName);
                     fictionObj.HTMLLink=htmlLink;
+                }
+                else if (fictionObj.HTMLLink.StartsWith(newName))
+                {
+                    IList<string> list = new List<string>();
+                    foreach (string link in fictionObj.FilesList)
+                    {
+                        string newLink = link;
+                        if (link.StartsWith(originalName))
+                        {
+                            newLink = link.Replace(originalName, newName);
+                        }
+                        list.Add(newLink);
+                    }
+                    fictionObj.FilesList.Clear();
+                    fictionObj.FilesList.AddRange(list);
                 }
             }
             manager.Save();
