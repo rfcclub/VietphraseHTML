@@ -17415,7 +17415,7 @@
 开玩笑吗=đùa giỡn hay sao
 开疆辟土=mở mang bờ cõi
 开的很大=mở thật lớn
-开辆跑车=lái xe xì pọt
+开辆跑车=lái xe thể thao
 开门的人=người mở cửa
 异常俊美=tuấn mỹ dị thường
 异常冷静=tĩnh táo dị thường
@@ -27045,7 +27045,7 @@
 这话一说=thốt ra lời này
 这身油水=thân nổi trôi này
 这辆就是=chính là chiếc kia
-这辆跑车=chiếc xe xì pọt kia
+这辆跑车=chiếc xe thể thao kia
 这辆颗星=những ngôi sao sáng kia
 这还不叫=như thế mà còn không gọi là
 这还不算=cái này cũng chưa tính
@@ -90930,7 +90930,7 @@
 跑累=chạy đã mệt
 跑走=chạy đi
 跑路=đường chạy
-跑车=xe xì pọt
+跑车=xe thể thao
 跑近=chạy tới gần
 跑进=chạy vào
 跑远=chạy xa
@@ -93497,7 +93497,7 @@
 青火=lửa xanh
 青烟=khói xanh
 青眼=coi trọng
-青睐=favor
+青睐=coi trọng
 青石=đá xanh
 青筋=gân xanh
 青纱=lụa mỏng xanh
@@ -94674,6 +94674,7 @@
 龙雕=khắc hình rồng
 龙颜=mặt rồng
 龙飞=rồng bay
+目的=mục đích
 龟伯=Quy bá
 龟侄=Quy điệt
 龟儿=Quy nhi
@@ -95246,3 +95247,8 @@
 徠=tới
 淶=tới
 萊=tới
+的=
+了.=.
+了,=,
+了!=!
+了?=?
