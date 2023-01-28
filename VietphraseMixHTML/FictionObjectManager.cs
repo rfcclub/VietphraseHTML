@@ -127,9 +127,12 @@ namespace VietphraseMixHTML
                                       Encoding.UTF8,false);
                         var serializer = new Newtonsoft.Json.JsonSerializer();
                         FictionObject fictionObject = (FictionObject)serializer.Deserialize(writer,typeof(FictionObject));
-                        fictionObject.RecalculatePreviousStepCount();
-                        Add(fictionObject);
-                        loaded = true;
+                        if (fictionObject != null)
+                        {
+                            fictionObject.RecalculatePreviousStepCount();
+                            Add(fictionObject);
+                            loaded = true;
+                        }
                     }
                     catch (Exception ex)
                     {

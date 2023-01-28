@@ -43,9 +43,16 @@ namespace VietphraseMixHTML
             BackgroundWorker worker = new BackgroundWorker();
             worker.DoWork+=worker_DoWork;
             worker.RunWorkerCompleted+=worker_RunWorkerCompleted;
+            worker.ProgressChanged += worker_ProgressChanged;
+            worker.WorkerReportsProgress = true;
             worker.RunWorkerAsync();
             buttonTranslate.Enabled = false;
             
+        }
+
+        private void worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            labelStatus.Text = (string)e.UserState;
         }
 
         private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -57,10 +64,11 @@ namespace VietphraseMixHTML
 
         private void worker_DoWork(object sender, DoWorkEventArgs e)
         {               
-            e.Result = Translate(fileChosen);
+            e.Result = Translate(fileChosen, (BackgroundWorker)sender);
+           
         }
 
-        private string Translate(string p)
+        private string Translate(string p, BackgroundWorker sender)
         {
             if (string.IsNullOrEmpty(p))
             {
@@ -72,17 +80,21 @@ namespace VietphraseMixHTML
 
             string translateContent = content;            
             string status = "VANBAN:" + content.Length.ToString() + " characters -- ";
+            sender.ReportProgress(10, status);
             long curTick = DateTime.Now.Ticks;
-            //translateContent = Regex.Replace(translateContent, GlobalCache.VietPhrasePattern,
-            //                                 m => GlobalCache.VietPhrase[m.Value]+" ");            
+                      
             GlobalCache.VietPhrase.AsEnumerable().ToList().ForEach(t =>
                 translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+            sender.ReportProgress(10, "VietPhrase completed");
             GlobalCache.Names.AsEnumerable().ToList().ForEach(t =>
                 translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+            sender.ReportProgress(10, "Names completed");
             GlobalCache.ChinesePhienAmWords.AsEnumerable().ToList().ForEach(t =>
                 translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+            sender.ReportProgress(10, "ChinesePhienAmWords completed");
             GlobalCache.ThanhNgu.AsEnumerable().ToList().ForEach(t =>
                 translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+            sender.ReportProgress(10, "ThanhNgu completed");
 
             long endTick = DateTime.Now.Ticks - curTick;            
             //TextWriter writer = new StreamWriter(p,false,Encoding.UTF8);

@@ -250,15 +250,15 @@ namespace VietphraseMixHTML
                     cover.Dispose();
 
                     ProcessStartInfo startInfo = new ProcessStartInfo();
-                    startInfo.CreateNoWindow = true;
+                    //startInfo.CreateNoWindow = false;
                     startInfo.UseShellExecute = true;
-                    startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                    startInfo.WindowStyle = ProcessWindowStyle.Normal;
                     startInfo.FileName = "C:\\kindlegen\\kindlegen.exe";
-                    string compressOption = "-c1";
-                    if (fictionObject.ChapterCount >= BOOK_CHAPTERS)
+                    string compressOption = "-c0";
+                    /*if (fictionObject.ChapterCount >= 500)
                     {
                         compressOption = "-c0";
-                    }
+                    }*/
                     startInfo.Arguments = bookDir + "\\mykindlebook.opf " + compressOption + " -dont_append_source -o " + this.fictionObject.Name + "_" + i.ToString() + ".mobi";
 
                     // Start the process with the info we specified.

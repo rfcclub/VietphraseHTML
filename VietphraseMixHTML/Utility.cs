@@ -33,18 +33,18 @@ namespace VietphraseMixHTML
         {
             try
             {
-                string result;
+                string result = source;
 
 
                 // Remove HTML Development formatting
                 // Replace line breaks with space
                 // because browsers inserts space
-                result = source.Replace("\r", " ");
+                result = source.Replace('\r', ' ');
                 // Replace line breaks with space
                 // because browsers inserts space
-                result = result.Replace("\n", " ");
+                result = result.Replace('\n', ' ');
                 // Remove step-formatting
-                result = result.Replace("\t", string.Empty);
+                result = result.Replace('\t', ' ');
 
                 // lower case before perform next
                 //result = result.ToLower();
@@ -108,9 +108,10 @@ namespace VietphraseMixHTML
 
                 // insert line breaks in places of <BR> and <LI> tags
                 // Check if there are line breaks (<br>) or paragraph (<p>)
-                result = result.Replace("<br>", "\n<br>");
-                result = result.Replace("<br ", "\n<br ");
-                result = result.Replace("<p ", "\n<p ");
+                result = result.Replace("<br>", "\r<br>");
+                result = result.Replace("<br ", "\r<br ");
+                result = result.Replace("<p>", "\r<p>");
+                result = result.Replace("<p ", "\r<p ");
                 result = System.Text.RegularExpressions.Regex.Replace(result,
                          @"<( )*br( )*>", "\r",
                          System.Text.RegularExpressions.RegexOptions.IgnoreCase);
@@ -221,7 +222,7 @@ namespace VietphraseMixHTML
                     tabs = tabs + "\t";
                 }
                 // patch : replace CR with CR + LF
-                result = result.Replace("\r", "\r\n");
+                result = result.Replace("\r", System.Environment.NewLine);
 
                 result = result.Replace('\uff0c', ',');
                 result = result.Replace('\uff01', '!');
@@ -299,7 +300,7 @@ namespace VietphraseMixHTML
                 var node = htmlDocument.DocumentNode.SelectSingleNode("//div[@id=\"contentbox\"]");
                 if(node != null)
                 {
-                    string text = node.InnerText;
+                    string text = node.InnerHtml;
                     text = text.Replace("<br/>", "\r\n");
                     
                     return StripHTML(text);
