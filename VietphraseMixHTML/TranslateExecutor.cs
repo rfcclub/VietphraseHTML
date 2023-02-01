@@ -11,13 +11,14 @@ using Ionic.Zip;
 using System.Xml;
 using System.Drawing;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace VietphraseMixHTML
 {
     public class TranslateExecutor
     {
         public const int BOOK_CHAPTERS = 1000;
-        public const int MAX_THREADS = 5;
+        public const int MAX_THREADS = 10;
         IList<string> originalStrings;
         IList<string> links;
         IDictionary<int, string> translateMap;
@@ -31,6 +32,9 @@ namespace VietphraseMixHTML
         int mergeLimit;
         bool noMoreSignal = false;
         IList<WorkingThread> workingThreads;
+        private static readonly Regex cjkCharRegex = new Regex(@"\p{IsCJKUnifiedIdeographs}");
+
+        private static readonly Regex vnRegex = new Regex(@"[ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ]+");
         public bool SaveChinese { get; set; }
         public bool SingleFile { get; set; }
         public IList<string> ProcessedLinkList { set; private get; }
@@ -79,19 +83,64 @@ namespace VietphraseMixHTML
         {
             TranslateChaptersTitle();
         }
+        public static string StripChineseChars(string input)
+        {
+            StringBuilder result = new StringBuilder(input);
+            result = result.Replace('\uff0c', ',')
+                           .Replace('\uff01', '!')
+                           .Replace('\uff08', '(')
+                           .Replace('\uff09', ')')
+                           .Replace('\uff1a', ':')
+                           .Replace('\uff1b', ';')
+                           .Replace('\uff1f', '?')
+                           .Replace('\uff5e', '~')
+                           .Replace('\u2026', '.')
+                           //.Replace('\u201c', '"')
+                           //.Replace('\u201d', '"')
+                           .Replace('—', '-')
+                           .Replace('鐾', ' ')
+                           .Replace('\u203b', '*')
+                           .Replace('\u3000', ' ')
+                           .Replace('\u3001', ',')
+                           .Replace('\u3002', '.')
+                           .Replace('\u300a', '(')
+                           .Replace('\u300b', ')')
+                           .Replace('\u3010', '[')
+                           .Replace('\u3011', ']');
+            return result.ToString();
+        }
+
+        public static StringBuilder StripChineseCharsInSB(StringBuilder result)
+        {
+            result = result.Replace('\uff0c', ',')
+                           .Replace('\uff01', '!')
+                           .Replace('\uff08', '(')
+                           .Replace('\uff09', ')')
+                           .Replace('\uff1a', ':')
+                           .Replace('\uff1b', ';')
+                           .Replace('\uff1f', '?')
+                           .Replace('\uff5e', '~')
+                           .Replace('\u2026', '.')
+                           //.Replace('\u201c', '"')
+                           //.Replace('\u201d', '"')
+                           .Replace('—', '-')
+                           .Replace('鐾', ' ')
+                           .Replace('\u203b', '*')
+                           .Replace('\u3000', ' ')
+                           .Replace('\u3001', ',')
+                           .Replace('\u3002', '.')
+                           .Replace('\u300a', '(')
+                           .Replace('\u300b', ')')
+                           .Replace('\u3010', '[')
+                           .Replace('\u3011', ']');
+            return result;
+        }
+
         public void TranslateChaptersTitle()
         {
             for (int i = 0; i < fictionObject.NewChapterNamesList.Count; i++)
             {
-                string translateContent = fictionObject.NewChapterNamesList[i];
-                GlobalCache.VietPhrase.AsEnumerable().ToList().ForEach(t =>
-                    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
-                GlobalCache.Names.AsEnumerable().ToList().ForEach(t =>
-                    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
-                GlobalCache.ChinesePhienAmWords.AsEnumerable().ToList().ForEach(t =>
-                    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
-                GlobalCache.ThanhNgu.AsEnumerable().ToList().ForEach(t =>
-                    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+                string translateContent = DoTranslate(fictionObject.NewChapterNamesList[i]);
                 fictionObject.ChapterNamesList.Add(translateContent);
                 chapterTranslateMap[i] = translateContent;
                 fictionObject.NewChapterNamesList[i] = translateContent;
@@ -100,6 +149,62 @@ namespace VietphraseMixHTML
             fictionObject.ChapterNamesList.AddRange(fictionObject.NewChapterNamesList);
             fictionObject.NewChapterNamesList.Clear();
         }
+
+        private string DoTranslate(string input)
+        {
+            bool translated = false;
+            var orderedKeys = GlobalCache.TranslateMap.Keys.OrderBy(s => s);
+            var translatedContent = input;
+            foreach (var orderKey in orderedKeys)
+            {
+                var listKV = GlobalCache.TranslateMap[orderKey].AsEnumerable().ToList();
+                int count = 0;
+                foreach (var kv in listKV)
+                {
+                    if (orderKey != GlobalCache.LUATNHAN_ORDER)
+                    {
+                        translatedContent = VBStrings.Replace(translatedContent, kv.Key, kv.Value + " ");
+                    }
+                    else
+                    {
+                        Match match = Regex.Match(translatedContent, kv.Key);
+                        if (match.Success)
+                        {
+                            translatedContent = Regex.Replace(translatedContent, kv.Key, kv.Value);
+                        }
+                    }
+                    count++;
+                    if (count % 20 == 0 && !IsChinese(translatedContent))
+                    {
+                        translated = true;
+                        break;
+                    }
+                }
+                if (translated) break;
+            }
+            GlobalCache.ThanhNgu.AsEnumerable().ToList().ForEach(t =>
+                translatedContent = VBStrings.Replace(translatedContent, t.Key, t.Value + " "));
+            return translatedContent;
+            //GlobalCache.VietPhrase.AsEnumerable().ToList().ForEach(t =>
+            //        translateBuilder.Replace(t.Key, t.Value + " "));
+            //GlobalCache.Names.AsEnumerable().ToList().ForEach(t =>
+            //    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+            //GlobalCache.ChinesePhienAmWords.AsEnumerable().ToList().ForEach(t =>
+            //    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+            //GlobalCache.ThanhNgu.AsEnumerable().ToList().ForEach(t =>
+            //    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+        }
+
+        public static bool IsChinese(string c)
+        {
+            return cjkCharRegex.IsMatch(c);
+        }
+
+        public static bool IsVietnamese(string c)
+        {
+            return vnRegex.IsMatch(c);
+        }
+
         public void Stop()
         {
             start = false;
@@ -124,6 +229,7 @@ namespace VietphraseMixHTML
                 thread.DoWork += Thread_DoWork;
                 thread.WorkCompleted += Thread_WorkCompleted;
                 thread.WorkingProgress += Thread_WorkingProgress;
+                thread.Background = true;
                 workingThreads.Add(thread);
                 thread.RunWorkAsync();
                 return true;
@@ -231,7 +337,7 @@ namespace VietphraseMixHTML
             {
                 string bookDir = dir + "\\Book_" + i.ToString();
                 if (!Directory.Exists(bookDir)) Directory.CreateDirectory(bookDir);
-                String bookPath = bookDir + "\\" + this.fictionObject.Name + "_" + i.ToString() + ".mobi";
+                String bookPath = bookDir + "\\" + Utility.NormalizeName(this.fictionObject.Name) + "_" + i.ToString() + ".mobi";
                 bool hasBookExisting = File.Exists(bookPath);
                 // if override so delete old version and convert again
                 if (hasBookExisting && overrideAll) 
@@ -259,7 +365,7 @@ namespace VietphraseMixHTML
                     {
                         compressOption = "-c0";
                     }*/
-                    startInfo.Arguments = bookDir + "\\mykindlebook.opf " + compressOption + " -dont_append_source -o " + this.fictionObject.Name + "_" + i.ToString() + ".mobi";
+                    startInfo.Arguments = bookDir + "\\mykindlebook.opf " + compressOption + " -dont_append_source -o " + Utility.NormalizeName(this.fictionObject.Name) + "_" + i.ToString() + ".mobi";
 
                     // Start the process with the info we specified.
                     // Call WaitForExit and then the using statement will close.
@@ -285,7 +391,7 @@ namespace VietphraseMixHTML
             {
                 string bookDir = dir + "\\Book_" + i.ToString();
                 if (!Directory.Exists(bookDir)) continue;
-                String bookPath = bookDir + "\\" + this.fictionObject.Name + "_" + i.ToString() + ".mobi";
+                String bookPath = bookDir + "\\" + Utility.NormalizeName(this.fictionObject.Name) + "_" + i.ToString() + ".mobi";
                 // generate smaller mobi file
                 ProcessStartInfo startInfo = new ProcessStartInfo();
                 startInfo.CreateNoWindow = true;
@@ -300,7 +406,7 @@ namespace VietphraseMixHTML
                     exeProcess.WaitForExit();
                 }
 
-                string newFile = bookDir + "\\" + "mobi7-" + this.fictionObject.Name + "_" + i.ToString() + ".mobi";
+                string newFile = bookDir + "\\" + "mobi7-" + Utility.NormalizeName(this.fictionObject.Name) + "_" + i.ToString() + ".mobi";
                 if (File.Exists(newFile) && File.Exists(bookPath))
                 {
                     File.Delete(bookPath);
@@ -362,7 +468,7 @@ namespace VietphraseMixHTML
             {
                 string bookDir = dir + "\\Book_" + i.ToString();
                 if(!Directory.Exists(bookDir)) Directory.CreateDirectory(bookDir);
-                String bookPath = bookDir + "\\" + this.fictionObject.Name + "_" + i.ToString() + ".mobi";
+                String bookPath = bookDir + "\\" + Utility.NormalizeName(this.fictionObject.Name) + "_" + i.ToString() + ".mobi";
                 bool hasBookExisting = File.Exists(bookPath);
                 if (hasBookExisting && overrideAll)
                 {
@@ -584,8 +690,8 @@ namespace VietphraseMixHTML
             if (SingleFile)
             {
                 string dir = Setting.Default.Workspace + "\\" + fictionObject.Location;
-                String zipFile = dir + @"\" + fictionObject.Name + ".zip";
-                String txtFile = dir + @"\" + fictionObject.Name + ".txt";
+                String zipFile = dir + @"\" + Utility.NormalizeName(fictionObject.Name) + ".zip";
+                String txtFile = dir + @"\" + Utility.NormalizeName(fictionObject.Name) + ".txt";
                 int step = fictionObject.GetPreviousStepCount() < 1 ? 1 : fictionObject.GetPreviousStepCount();
                 string path = dir + "\\" + string.Format("{0:000}", step) + ".txt";
                 if (File.Exists(path))
@@ -645,15 +751,16 @@ namespace VietphraseMixHTML
             string translateContent = originalContent;
             StringBuilder content = new StringBuilder(translateContent);
             string status = "VANBAN:" + content.Length.ToString() + " characters -- ";
-            long curTick = DateTime.Now.Ticks;            
-            GlobalCache.VietPhrase.AsEnumerable().ToList().ForEach(t =>
-                translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
-            GlobalCache.Names.AsEnumerable().ToList().ForEach(t =>
-                translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
-            GlobalCache.ChinesePhienAmWords.AsEnumerable().ToList().ForEach(t =>
-                translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
-            GlobalCache.ThanhNgu.AsEnumerable().ToList().ForEach(t =>
-                translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+            long curTick = DateTime.Now.Ticks;
+            translateContent = DoTranslate(originalContent);
+            //GlobalCache.VietPhrase.AsEnumerable().ToList().ForEach(t =>
+            //    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+            //GlobalCache.Names.AsEnumerable().ToList().ForEach(t =>
+            //    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+            //GlobalCache.ChinesePhienAmWords.AsEnumerable().ToList().ForEach(t =>
+            //    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
+            //GlobalCache.ThanhNgu.AsEnumerable().ToList().ForEach(t =>
+            //    translateContent = VBStrings.Replace(translateContent, t.Key, t.Value + " "));
 
             long endTick = DateTime.Now.Ticks - curTick;
             ((WorkingThread)sender).ReportProgress(0, status + "TRANSLATED:" + (endTick / 10000000).ToString() + "s");

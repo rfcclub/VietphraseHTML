@@ -74,7 +74,7 @@ namespace VietphraseMixHTML
 
         private void ProcessCurrentFictionObject()
         {
-            LockInformation(START_JOB_MODE);
+            // LockInformation(START_JOB_MODE);
             RecalculateStepCount();
             
             // if it does not have file list 
@@ -86,6 +86,7 @@ namespace VietphraseMixHTML
                 form.UpdateSign = _currentFictionObject.UpdateSign;
                 form.ShowDialog();
 
+                // get all links done !
                 _currentFictionObject.NewFilesList = form.UrlList;
                 _currentFictionObject.NewChapterNamesList = form.ChapterNameList;
                 _currentFictionObject.UpdateContentList();
@@ -127,20 +128,17 @@ namespace VietphraseMixHTML
                 translateThread.DoWork += new EventHandler<WorkingEventArg>(translateWorker_DoWork);
                 translateThread.WorkingProgress += new EventHandler<WorkingEventArg>(translateWorker_WorkingProgress);
                 translateThread.WorkCompleted += new EventHandler<WorkingEventArg>(translateWorker_WorkCompleted);
-                
-                if (chkSingleFile.Checked)
-                {
-                    string dir = txtLocation.Text.Trim();
-                    String zipFile = dir + @"\" + _currentFictionObject.Name + ".zip";
 
-                    if(File.Exists(zipFile))
+                string dir = txtLocation.Text.Trim();
+                String zipFile = dir + @"\" + Utility.NormalizeName(_currentFictionObject.Name) + ".zip";
+
+                if (File.Exists(zipFile))
+                {
+                    using (ZipFile zip = ZipFile.Read(zipFile))
                     {
-                        using (ZipFile zip = ZipFile.Read(zipFile))
+                        foreach (ZipEntry entry in zip)
                         {
-                            foreach(ZipEntry entry in zip)
-                            {
-                                entry.Extract(dir, ExtractExistingFileAction.OverwriteSilently);
-                            } 
+                            entry.Extract(dir, ExtractExistingFileAction.OverwriteSilently);
                         }
                     }
                 }
@@ -183,7 +181,7 @@ namespace VietphraseMixHTML
             _currentFictionObject.Save();
             _currentFictionObject.PreviousStepCount = _stepCount;
             ResetPrivateVariables();
-            LockInformation(VIEW_MODE);
+            // LockInformation(VIEW_MODE);
             StopAllThreads();
             InformationBox.Show("OK!", new AutoCloseParameters(1));
             RefreshDataGrid();
@@ -335,6 +333,7 @@ namespace VietphraseMixHTML
         /// <param name="sender">The sender.</param>
         private void FictionDownload(object sender)
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             bool pageNotFound = false;
 
             //WebClient webClient = new WebClient();
@@ -355,7 +354,7 @@ namespace VietphraseMixHTML
 
             if (_currentFictionObject.ContentEncoding == null)
             {   
-                _currentFictionObject.ContentEncoding = webClient.Encoding;
+                _currentFictionObject.ContentEncoding = webClient.Encoding.WebName;
                 _currentFictionObject.Save();
             }
             // if we use vpbobbie so set encoding again and set a boolean define content is UTF-8 already
@@ -513,7 +512,7 @@ namespace VietphraseMixHTML
             }
             else
             {
-                webClient.Encoding = _currentFictionObject.ContentEncoding;
+                webClient.Encoding = Encoding.GetEncoding(_currentFictionObject.ContentEncoding);
             }
 
             return webClient;
@@ -594,8 +593,8 @@ namespace VietphraseMixHTML
             int mergeLimit = Int32.Parse(txtLimit.Text);
             TranslateExecutor center = new TranslateExecutor(_currentFictionObject, _maxProcessingCount, mergeLimit, ((WorkingThread)sender));
             center.ProcessedLinkList = _processedLinkList;
-            center.SaveChinese = chkChinese.Checked;
-            center.SingleFile = chkSingleFile.Checked;
+            center.SaveChinese = true;
+            center.SingleFile = true;
             center.Start();
             center.WaitProcess = waitProcess;
             while (!center.Finish())
@@ -764,26 +763,38 @@ namespace VietphraseMixHTML
             {
                 Directory.CreateDirectory(dir); 
             }
-            
-            if (chkSingleFile.Checked)
+
+            int step = _currentFictionObject.PreviousStepCount;
+            if (step < 1) step = 1;
+            string path = dir + "\\" + string.Format("{0:000}", step) + ".txt";
+            if (File.Exists(path))
             {
-                int step = _currentFictionObject.PreviousStepCount;
-                if (step < 1) step = 1;
-                string path = dir + "\\" + string.Format("{0:000}", step) + ".txt";
-                if (File.Exists(path))
-                {
-                    File.AppendAllText(path,content,Encoding.UTF8);
-                }
-                else
-                {
-                    File.WriteAllText(path, content, Encoding.UTF8);    
-                }
+                File.AppendAllText(path, content, Encoding.UTF8);
             }
             else
             {
-                string path = dir + "\\" + string.Format("{0:000}", stepCount) + ".txt";
                 File.WriteAllText(path, content, Encoding.UTF8);
             }
+
+            //if (chkSingleFile.Checked)
+            //{
+            //    int step = _currentFictionObject.PreviousStepCount;
+            //    if (step < 1) step = 1;
+            //    string path = dir + "\\" + string.Format("{0:000}", step) + ".txt";
+            //    if (File.Exists(path))
+            //    {
+            //        File.AppendAllText(path,content,Encoding.UTF8);
+            //    }
+            //    else
+            //    {
+            //        File.WriteAllText(path, content, Encoding.UTF8);    
+            //    }
+            //}
+            //else
+            //{
+            //    string path = dir + "\\" + string.Format("{0:000}", stepCount) + ".txt";
+            //    File.WriteAllText(path, content, Encoding.UTF8);
+            //}
             //File.Create(path);
             
         }
@@ -885,26 +896,6 @@ namespace VietphraseMixHTML
             return content.IndexOf(phrase) >= 0 ? true : false;
         }
 
-        /// <summary>
-        /// Creates the new fiction object.
-        /// </summary>
-        /// <returns></returns>
-        private FictionObject CreateNewFictionObject()
-        {
-            FictionObject fictionObject = new FictionObject();
-            fictionObject.HTMLLink = txtHTMLLink.Text.Trim();
-            fictionObject.Location = txtLocation.Text.Trim();
-            fictionObject.Name = txtName.Text.Trim();
-            fictionObject.FilesList = new List<string>();
-            fictionObject.NewFilesList = new List<string>();
-            fictionObject.Author = txtAuthor.Text.Trim();
-
-            _fictionObjectManager.Add(fictionObject);
-            dgvFictions.CurrentCell = dgvFictions[0, _fictionObjectManager.ProjectList.Count - 1];
-            dgvFictions.Refresh();
-            return fictionObject;
-        }
-
         private void btnQuit_Click(object sender, EventArgs e)
         {
             Close();
@@ -913,7 +904,7 @@ namespace VietphraseMixHTML
 
         private void txtName_TextChanged(object sender, EventArgs e)
         {
-            txtLocation.Text = Setting.Default.Workspace + "\\" + txtName.Text.Trim();
+            // txtLocation.Text = Setting.Default.Workspace + "\\" + txtName.Text.Trim();
         }
 
         /// <summary>
@@ -935,7 +926,7 @@ namespace VietphraseMixHTML
             fictionObjectBindingSource.DataSource = _fictionObjectManager.ProjectList;
             fictionObjectBindingSource.ResetBindings(false);
             RefreshDataGrid();
-            grpFictionInformation.Enabled = false;
+            // grpFictionInformation.Enabled = false;
         }
 
         private void RefreshDataGrid()
@@ -1051,13 +1042,34 @@ namespace VietphraseMixHTML
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            FictionObject fictionObject = CreateNewFictionObject();
-            _currentFictionObject = fictionObject;
-            _currentFictionObject.Clear();
+            NewFictionForm form = new NewFictionForm();
+            form.SetMode(ADD_MODE);
+            form.ShowDialog();
+            if (form.IsCancelled) return;
             _processingQueue.Clear();
-
-            LockInformation(ADD_MODE);
-            ClearControls();
+            // LockInformation(VIEW_MODE);
+            if (form.GetMode() == 2) // NEW MODE
+            {
+                var fictionObject = form.GetResult();
+                var found = false;
+                foreach(var fiction in _fictionObjectManager.ProjectList)
+                {
+                    if (fiction.HTMLLink.Equals(fictionObject.HTMLLink))
+                    {
+                        found = true; 
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    _fictionObjectManager.Add(fictionObject);
+                    fictionObjectBindingSource.ResetBindings(false);
+                    InformationBox.Show($"Adding {form.GetResult().Name} - {form.GetResult().Author}");
+                    RefreshDataGrid();
+                }
+                
+            }
+            
             Refresh();
         }
 
@@ -1065,7 +1077,7 @@ namespace VietphraseMixHTML
         /// Locks the information.
         /// </summary>
         /// <param name="mode">The mode.</param>
-        private void LockInformation(int mode)
+        private void LockFormInformation(int mode)
         {
             _currentMode = mode;
             switch (_currentMode)
@@ -1217,7 +1229,39 @@ namespace VietphraseMixHTML
 
         private void btnEdit_Click(object sender, EventArgs e)
         {
-            LockInformation(EDIT_MODE);
+            if (_currentFictionObject == null) return;
+            var form = new NewFictionForm();
+            form.SetWorkingFictionObject(_currentFictionObject);
+            form.ShowDialog();
+            if (form.GetResult() != null && form.GetMode() == EDIT_MODE) 
+            {
+                _currentFictionObject = form.GetResult();
+                _currentFictionObject.Save();
+                // check and delete file            
+                if (_currentFictionObject.ResetFlag)
+                {
+                    int count = 1;
+                    string fictionPath = Setting.Default.Workspace + "\\" + _currentFictionObject.Location;
+                    String zipFile = fictionPath + @"\" + Utility.NormalizeName(_currentFictionObject.Name) + ".zip";
+                    if (File.Exists(zipFile)) File.Delete(zipFile);
+                    string firstFile = fictionPath + "\\" + string.Format("{0:000}", count++) + ".txt";
+                    if (File.Exists(firstFile)) File.Delete(firstFile);
+                    string nextFile = fictionPath + "\\" + string.Format("{0:000}", count++) + ".txt";
+                    while (File.Exists(nextFile))
+                    {
+                        File.Delete(nextFile);
+                        nextFile = fictionPath + "\\" + string.Format("{0:000}", count++) + ".txt";
+                    }
+                    if (File.Exists(fictionPath + "\\mykindlebook.opf")) File.Delete(fictionPath + "\\mykindlebook.opf");
+                    if (File.Exists(fictionPath + "\\mykindlebook.html")) File.Delete(fictionPath + "\\mykindlebook.html");
+                    if (File.Exists(fictionPath + "\\toc.ncx")) File.Delete(fictionPath + "\\toc.ncx");
+                    if (File.Exists(fictionPath + "\\toc.html")) File.Delete(fictionPath + "\\toc.html");
+                    _currentFictionObject.ResetFlag = false;
+                }
+                InformationBox.Show($"{_currentFictionObject.Name} updated!", new AutoCloseParameters(1));
+                fictionObjectBindingSource.ResetBindings(false);
+                RefreshDataGrid();
+            }
         }
 
         private void BtnSaveFictionObjectClick(object sender, EventArgs e)
@@ -1231,7 +1275,7 @@ namespace VietphraseMixHTML
             {
                 int count = 1;
                 string fictionPath = Setting.Default.Workspace + "\\" + _currentFictionObject.Location;
-                String zipFile = fictionPath + @"\" + _currentFictionObject.Name + ".zip";
+                String zipFile = fictionPath + @"\" + Utility.NormalizeName(_currentFictionObject.Name) + ".zip";
                 if (File.Exists(zipFile)) File.Delete(zipFile);
                 string firstFile = fictionPath + "\\" + string.Format("{0:000}", count++) + ".txt";
                 if (File.Exists(firstFile)) File.Delete(firstFile);
@@ -1271,7 +1315,7 @@ namespace VietphraseMixHTML
                 default:
                     break;
             }
-            LockInformation(VIEW_MODE);            
+            // LockInformation(VIEW_MODE);            
         }
 
         private void rdoIncremental_CheckedChanged(object sender, EventArgs e)
@@ -1379,7 +1423,7 @@ namespace VietphraseMixHTML
 
         private void btnStartAll_Click(object sender, EventArgs e)
         {
-            LockInformation(START_JOB_MODE);
+            // LockInformation(START_JOB_MODE);
             grandProcessQueue = new Queue<int>();
             foreach (DataGridViewRow row in dgvFictions.Rows)
             {
@@ -1446,16 +1490,17 @@ namespace VietphraseMixHTML
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            LockInformation(VIEW_MODE);
+            // LockInformation(VIEW_MODE);
         }
 
         private void capNhatEncodingToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             foreach (FictionObject fictionObject in _fictionObjectManager.ProjectList)
             {
                 if (Utility.IsUtf8Site(fictionObject.HTMLLink))
                 {
-                    fictionObject.ContentEncoding = Encoding.UTF8;
+                    fictionObject.ContentEncoding = "UTF-8";
                     fictionObject.Save();
                     continue;
                 }
@@ -1470,7 +1515,7 @@ namespace VietphraseMixHTML
                 }
                 catch(Exception ex)
                 {
-                    fictionObject.ContentEncoding = Encoding.GetEncoding("GB2312");
+                    fictionObject.ContentEncoding = "GB2312";
                     fictionObject.Save();
                     continue;
                 }
@@ -1495,7 +1540,7 @@ namespace VietphraseMixHTML
                     if (!string.IsNullOrEmpty(pageEncodingString)) chineseEncoding = Encoding.GetEncoding(pageEncodingString);
                     else
                         chineseEncoding = Encoding.GetEncoding("GB2312");
-                fictionObject.ContentEncoding = chineseEncoding;
+                fictionObject.ContentEncoding = chineseEncoding.WebName;
                 fictionObject.Save();
             }
         }
@@ -1536,7 +1581,7 @@ namespace VietphraseMixHTML
             {   
                 int count = 1;
                 string fictionPath = Setting.Default.Workspace + "\\" + fictionObject.Location;
-                String zipFile = fictionPath + @"\" + fictionObject.Name + ".zip";
+                String zipFile = fictionPath + @"\" + Utility.NormalizeName(fictionObject.Name) + ".zip";
                 string[] files = Directory.GetFiles(fictionPath, "*.zip");        
                 if(files.Length > 0)
                 {

@@ -103,7 +103,7 @@ namespace VietphraseMixHTML
             {
                 Directory.CreateDirectory(Setting.Default.Workspace);
             }
-            string[] paths  =Directory.GetDirectories(Setting.Default.Workspace);
+            string[] paths=Directory.GetDirectories(Setting.Default.Workspace);
 
             foreach (string path in paths)
             {
@@ -113,20 +113,16 @@ namespace VietphraseMixHTML
 
         private void LoadProjects(string rootPath)
         {
+            System.Text.Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             string[] file2s = Directory.GetFiles(rootPath, "*.fobj3");
+            bool loaded = false;
             if (file2s != null && file2s.Length > 0)
             {
-                bool loaded = false;
-            
                 foreach (string file in file2s)
                 {
-                    StreamReader writer = null;
                     try
                     {
-                        writer = new StreamReader(file,                                      
-                                      Encoding.UTF8,false);
-                        var serializer = new Newtonsoft.Json.JsonSerializer();
-                        FictionObject fictionObject = (FictionObject)serializer.Deserialize(writer,typeof(FictionObject));
+                        FictionObject fictionObject = JsonConvert.DeserializeObject<FictionObject>(File.ReadAllText(file, Encoding.UTF8));
                         if (fictionObject != null)
                         {
                             fictionObject.RecalculatePreviousStepCount();
@@ -138,42 +134,63 @@ namespace VietphraseMixHTML
                     {
                         Console.WriteLine(ex.Message);
                     }
-                    finally
-                    {
-                        if (writer != null) writer.Close();
-                        writer = null;
-                    }
+                    //StreamReader writer = null;
+                    //try
+                    //{
+                    //    writer = new StreamReader(file,                                      
+                    //                  Encoding.UTF8,false);
+                    //    var serializer = new Newtonsoft.Json.JsonSerializer();
+                    //    FictionObject fictionObject = (FictionObject)serializer.Deserialize(writer,typeof(FictionObject));
+                    //    if (fictionObject != null)
+                    //    {
+                    //        fictionObject.RecalculatePreviousStepCount();
+                    //        Add(fictionObject);
+                    //        loaded = true;
+                    //    }
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    Console.WriteLine(ex.Message);
+                    //}
+                    //finally
+                    //{
+                    //    if (writer != null) writer.Close();
+                    //    writer = null;
+                    //}
                     if(loaded) return;
                 }
             }
-            string[] files = Directory.GetFiles(rootPath, "*.fobj");
-            if (files != null && files.Length > 0)
+            if (!loaded)
             {
-                Stream stream = null;
-                foreach (string file in files)
+                string[] files = Directory.GetFiles(rootPath, "*.fobj");
+                if (files != null && files.Length > 0)
                 {
-                    
-                    try
+                    Stream stream = null;
+                    foreach (string file in files)
                     {
-                        stream = File.Open(file, FileMode.Open);
-                        BinaryFormatter bf = new BinaryFormatter();
 
-                        FictionObject fictionObject = (FictionObject) bf.Deserialize(stream);
-                        String location = fictionObject.Location;
-                        int lastIndex = location.LastIndexOf("\\");
-                        if (lastIndex > 0) fictionObject.Location = location.Substring(lastIndex + 1);
-                        else fictionObject.Location = location;
-                        fictionObject.RecalculatePreviousStepCount();
-                        Add(fictionObject);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                    finally
-                    {
-                        if(stream!=null) stream.Close();
-                        stream = null;
+                        try
+                        {
+                            stream = File.Open(file, FileMode.Open);
+                            BinaryFormatter bf = new BinaryFormatter();
+
+                            FictionObject fictionObject = (FictionObject)bf.Deserialize(stream);
+                            String location = fictionObject.Location;
+                            int lastIndex = location.LastIndexOf("\\");
+                            if (lastIndex > 0) fictionObject.Location = location.Substring(lastIndex + 1);
+                            else fictionObject.Location = location;
+                            fictionObject.RecalculatePreviousStepCount();
+                            Add(fictionObject);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
+                        finally
+                        {
+                            if (stream != null) stream.Close();
+                            stream = null;
+                        }
                     }
                 }
             }

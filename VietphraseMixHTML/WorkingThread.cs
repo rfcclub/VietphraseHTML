@@ -58,7 +58,14 @@ namespace VietphraseMixHTML
         {
             if (_thread != null && _thread.IsAlive)
             {
-                _thread.Abort();
+                try
+                {
+                    _thread.Abort(); 
+                }
+                catch(Exception ex)
+                {
+                    // do nothing
+                }
             }
         }
 

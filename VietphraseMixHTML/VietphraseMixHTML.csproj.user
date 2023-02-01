@@ -3,4 +3,27 @@
   <PropertyGroup>
     <ProjectView>ShowAllFiles</ProjectView>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="ChangeNameSiteForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="GetLinksForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LinkListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="NewFictionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="SettingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="TranslateSingleForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>

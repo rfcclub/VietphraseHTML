@@ -415,7 +415,6 @@ namespace VietphraseMixHTML
         public static void TryActionHelper(EmptyDelegate method, int retryCount)
         {
             bool retry = false;
-
             do
             {
                 try
@@ -451,6 +450,21 @@ namespace VietphraseMixHTML
             content = content.Replace("\t\t\t", "");
             content = content.Replace("\n\n\n", "\n\n");
             return content;
+        }
+
+        public static string NormalizeName(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            var builder = new StringBuilder(value);
+            foreach (string normalString in GlobalCache.normalStrings)
+            {
+                for (int i = 1; i < normalString.Length; i++)
+                {
+                    builder.Replace(normalString[i], normalString[0]);
+                }
+            }
+            builder.Replace(" ", string.Empty);
+            return builder.ToString();
         }
     }
 }

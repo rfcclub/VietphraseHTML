@@ -8,6 +8,15 @@ namespace VietphraseMixHTML
 {
     public class GlobalCache
     {
+        public static string[] normalStrings = {
+            @"AÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬ",@"aáàảãạăắằẳẵặâấầẩẫậ",
+            @"eéèẻẽẹêếềểễệ",@"EÉÈẺẼẸÊẾỀỂỄỆ",
+            @"iíìỉĩị", @"IÍÌỈĨỊ",
+            @"oóòỏõọôốồổỗộơớờởỡợ", "OÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢ",
+            @"uúùủũụưứừửữự", @"UÚÙỦŨỤƯỨỪỬỮỰ",
+            @"yýỳỷỹỵ",@"YÝỲỶỸỴ",
+            "dđ","DĐ"
+        };
         public static Dictionary<string, string> ChinesePhienAmWords
         {
             get; set;
@@ -29,6 +38,29 @@ namespace VietphraseMixHTML
             get;
             set;
         }
+
+        public static List<string> NameKeys
+        {
+            get;
+            set;
+        }
+        public static List<string> ThanhNguKeys
+        {
+            get;
+            set;
+        }
+
+        public static List<string> VietPhraseKeys
+        {
+            get;
+            set;
+        }
+
+        public static Dictionary<string, string> LuatNhan
+        {
+            get;
+            set;
+        }
         public static Dictionary<string, string> Downloaders
         {
             get;
@@ -39,7 +71,11 @@ namespace VietphraseMixHTML
             get;
             set;
         }
+        public static Dictionary<int, Dictionary<string, string>> TranslateMap = new Dictionary<int, Dictionary<string, string>>();
+        public static Dictionary<int, List<string>> TranslateKeyMap = new Dictionary<int, List<string>>();
 
+        public const int NAME_ORDER = 0, VP_ORDER = 1, LUATNHAN_ORDER = 2, CHINESE_ORDER = 3;
+        
         public static IList<string> UTF8Sites { get; set; }
         public static string VietPhrasePattern { get; set; }
         public static string ChinesePhienAmPattern { get; set; }
@@ -53,6 +89,7 @@ namespace VietphraseMixHTML
             Names = new Dictionary<string, string>();
             ThanhNgu = new Dictionary<string, string>();
             VietPhrase = new Dictionary<string, string>();
+            LuatNhan = new Dictionary<string, string>();
             UTF8Sites = new List<string>();
             Downloaders = new Dictionary<string, string>();
             DownloaderSignatures = new Dictionary<string, string>();
@@ -63,11 +100,55 @@ namespace VietphraseMixHTML
             ReadFileToList(Names, dir + "Names.txt");
             ReadFileToList(ThanhNgu, dir + "ThanhNgu.txt");
             ReadFileToList(VietPhrase, dir + "VietPhrase.txt");
+            ReadTextRegExToList(LuatNhan, dir + "LuatNhan.txt");
             ReadFileToList(UTF8Sites,dir + "utf8website.txt");
             ReadConfigToList(Downloaders, dir + "DownloaderConfiguration.txt");
             ReadConfigToList(DownloaderSignatures, dir + "DownloaderSignature.txt");
             BuildPattern();
-            
+            TranslateMap[NAME_ORDER] = Names;
+            TranslateMap[VP_ORDER] = VietPhrase;
+            TranslateMap[LUATNHAN_ORDER] = LuatNhan;
+            TranslateMap[CHINESE_ORDER] = ChinesePhienAmWords;
+
+        }
+
+        private static void ReadTextRegExToList(Dictionary<string, string> dictionary, string resourceName)
+        {
+            ReadTextRegExToList(dictionary, File.OpenRead(resourceName));
+        }
+
+        private static void ReadTextRegExToList(Dictionary<string, string> dictionary, Stream resourceName)
+        {
+            using (StreamReader stream = new StreamReader(resourceName, Encoding.UTF8))
+            {
+                while (!stream.EndOfStream)
+                {
+                    string line = stream.ReadLine();
+                    string[] lines = line.Split('=');
+                    if (lines.Length != 2)
+                    {
+                        continue;
+                    }
+                    string key = lines[0].Trim();
+                    var value = lines[1];
+
+                    string[] values = value.Replace("{0}", "¤_¤").Split('¤');
+                    StringBuilder replacement = new StringBuilder();
+                    for (int i = 0; i < values.Length; i++)
+                    {
+                        if (values[i].Equals("_")) replacement.Append($"$1");
+                        else replacement.Append(values[i]);
+                    }
+                    string[] keys = key.Replace("{0}", "¤_¤").Split('¤');
+                    StringBuilder pattern = new StringBuilder();
+                    for (int i = 0; i < keys.Length; i++)
+                    {
+                        if (keys[i].Equals("_")) pattern.Append("(.+)");
+                        else pattern.Append($"({keys[i]})");
+                    }
+                    dictionary[pattern.ToString()] = replacement.ToString();
+                }
+            }
         }
 
         private static void BuildPattern()

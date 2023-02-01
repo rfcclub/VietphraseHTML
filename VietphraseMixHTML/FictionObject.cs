@@ -3,10 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR.Protocol;
 using Newtonsoft.Json;
+using static ServiceStack.Diagnostics.Events;
 using Setting = VietphraseMixHTML.Properties.Settings;
 
 namespace VietphraseMixHTML
@@ -55,7 +60,7 @@ namespace VietphraseMixHTML
         public bool UseVpBotbie { get; set; }
         
         
-        public Encoding ContentEncoding { get; set; }
+        public string ContentEncoding { get; set; }
         public bool SortBeforeDownload { get; set; }
         public IDictionary<string, IList<string>> ContentList { get; set; }
         public int ChapterCount
@@ -86,7 +91,7 @@ namespace VietphraseMixHTML
             ProcessQueue = new Queue<string>();
             UpdateSign = UpdateSignType.None;
             ContentList = new Dictionary<string, IList<string>>();
-            ContentEncoding = Encoding.GetEncoding("GB2312");
+            ContentEncoding = "GB2312";
             ChapterNamesList = new List<string>();
             NewChapterNamesList = new List<string>();
         }
@@ -123,7 +128,7 @@ namespace VietphraseMixHTML
         }
 
         public void Save()
-        {           
+        { 
            string location = Setting.Default.Workspace + "\\" + Location;
            if (!Directory.Exists(location))
            {
@@ -132,11 +137,12 @@ namespace VietphraseMixHTML
 
             Stream mstStream = null;
             //string fileName = Location + "\\" + Name + ".fobj2";
-            string fileName = location + "\\" + Name + ".fobj3";
-            string fileName1 = location + "\\" + Name + ".fobj";
-            if (ContentEncoding != Encoding.UTF8 && ContentEncoding != Encoding.GetEncoding("GB2312"))
+            string fileName = location + "\\" + Utility.NormalizeName(Name) + ".fobj3";
+            string fileName1 = location + "\\" + Utility.NormalizeName(Name) + ".fobj";
+            
+            if (!"UTF-8".Equals(ContentEncoding) && !"GB2312".Equals(ContentEncoding))
             {
-                ContentEncoding = Encoding.GetEncoding("GB2312");
+                ContentEncoding = "GB2312";
             }
             try
             {
@@ -146,13 +152,15 @@ namespace VietphraseMixHTML
                     File.Delete(fileName);
                 }
 
-                StreamWriter writer = new StreamWriter(fileName,
-                                      false,
-                                      Encoding.UTF8);
-                var serializer = new JsonSerializer();
-                serializer.Serialize(writer, this);
-                writer.Flush();
-                writer.Close();
+                //StreamWriter writer = new StreamWriter(fileName,
+                //                      false,
+                //                      Encoding.UTF8);
+                //var serializer = new JsonSerializer();
+                //serializer.Serialize(writer, this);
+                //writer.Flush();
+                //writer.Close();
+                File.WriteAllText(fileName, JsonConvert.SerializeObject(this, Formatting.Indented));
+
                 if (File.Exists(fileName1))
                 {
                     File.Copy(fileName1, fileName1 + ".bkp", true);
@@ -186,24 +194,28 @@ namespace VietphraseMixHTML
             Utility.TryActionHelper(DoUpdate,3);
             UpdateContentList();
         }
-
         private void DoUpdate()
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             NewFilesList.Clear();
             NewChapterNamesList.Clear();
             List<string> lstLinks = new List<string>();
             //Trust all certificates
             System.Net.ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
-            WebRequest request = WebRequest.Create(HTMLLink);
-            htmlDocument.Load(request.GetResponse().GetResponseStream(), ContentEncoding);
+            var task = Task.Run(async ()=> {
+                var httpClient = GlobalHttpClient.Instance;
+                HttpResponseMessage response = await httpClient.GetAsync(HTMLLink);
+                return await response.Content.ReadAsStreamAsync();
+            });
+            var result = task.GetAwaiter().GetResult();
+            htmlDocument.Load(result, Encoding.GetEncoding(ContentEncoding));
             string buildNewLink = null;
             bool moveToRoot = false;
             HtmlNodeCollection links = htmlDocument.DocumentNode.SelectNodes("//a");
             foreach (HtmlNode link in links)
             {
                 HtmlAttribute att = link.Attributes["href"];
-
                 if (att == null) continue;
                 string newLink = att.Value;
                 if (!MatchUpdateSign(newLink)) continue;
@@ -238,7 +250,7 @@ namespace VietphraseMixHTML
                 if (!FilesList.Contains(buildNewLink))
                 {
                     NewFilesList.Add(buildNewLink);
-                    NewChapterNamesList.Add(GetUTF8Content(HTMLLink, link.InnerHtml, ContentEncoding));
+                    NewChapterNamesList.Add(GetUTF8Content(HTMLLink, link.InnerHtml, Encoding.GetEncoding(ContentEncoding)));
                 }
             }
 
@@ -247,8 +259,6 @@ namespace VietphraseMixHTML
                 NewFilesList = DoSort(NewFilesList);
             }
             PreviousStepCount = GetPreviousStepCount();
-
-            
         }
 
         private string GetUTF8Content(string url, string htmlContent, Encoding chineseEncoding)
